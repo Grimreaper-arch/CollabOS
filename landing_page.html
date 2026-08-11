@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CollabOS</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .grid-background {
+            background-image:
+                linear-gradient(#07006C 1px, transparent 1px),
+                linear-gradient(90deg, #07006C 1px, transparent 1px);
+            background-size: 27px 27px;
+        }
+    </style>
+</head>
+
+<body class="bg-[#101114] text-[#e8e8ed]">
+
+
+    <!-- NAVBAR -->
+
+    <header class="h-12 px-[18px] flex items-center justify-between bg-[#111216] border-b border-[#30313a]">
+
+        <div class="flex items-center gap-8">
+
+            <a href="#" class="text-sm font-bold">
+                CollabOS
+            </a>
+
+            <nav class="hidden sm:flex h-12 items-center gap-7">
+
+                <a href="#" class="relative h-12 flex items-center text-[11px] text-[#d7d7df] font-semibold after:absolute after:left-0 after:right-0 after:bottom-0 after:h-[2px] after:bg-[#aaa9ff]">
+                    Overview
+                </a>
+
+                <a href="#" class="text-[11px] text-[#999ba5]">
+                    Features
+                </a>
+
+                <a href="#" class="text-[11px] text-[#999ba5]">
+                    Pricing
+                </a>
+
+            </nav>
+
+        </div>
+
+        <div class="flex items-center gap-4">
+
+            <a href="#" class="text-[11px] text-[#d0d0d6]">
+                Log in
+            </a>
+
+            <a href="#" class="h-[25px] px-5 flex items-center justify-center bg-[#b7b5ff] border border-[#d1d0ff] text-[9px] font-bold text-[#12122a]">
+                START BUILDING
+            </a>
+
+        </div>
+
+    </header>
+
+    <main>
+        <!-- HERO -->
+
+        <section class="relative min-h-[748px] overflow-hidden pt-8 flex flex-col items-center">
+
+            <div class="absolute inset-0 opacity-40 grid-background pointer-events-none"></div>
+
+            <div class="relative z-10 max-w-[760px] px-5 flex flex-col items-center text-center">
+
+                <!-- Announcement -->
+
+                <div class="px-2 py-[3px] rounded-xl border border-[#4a4a65] bg-[#171821] text-[9px] font-semibold text-[#aaa9dd]">
+                    ✧ &nbsp; COLLABOS 2.0 IS LIVE
+                </div>
+
+                <!-- Heading -->
+
+                <h1 class="mt-7 text-[42px] sm:text-[52px] lg:text-[62px] leading-[0.98] tracking-[-2.5px font-bold">
+                    The Operating System for
+                    <br class="hidden sm:block">
+                    Modern Engineering Teams.
+                </h1>
+
+                <!-- Description -->
+
+                <p class="max-w-[550px] mt-7 text-[13px] leading-[1.45] text-[#c3c3cb]">
+                    Plan projects, coordinate teams, automate workflows, communicate in real time, and work smarter with AI — all from one unified workspace designed for high-velocity development.
+                </p>
+
+
+                <!-- Buttons -->
+
+                <div class="mt-9 flex flex-col sm:flex-row gap-3">
+
+                    <a href="#" class="h-9 px-8 flex items-center justify-center bg-[#b7b5ff] border border-[#d1d0ff] text-[11px] font-semibold text-[#12122a]">
+                        Start Building
+                    </a>
+
+                    <a href="#" class="h-9 px-8 flex items-center justify-center border border-[#454651] text-[11px]">
+                        Explore Demo
+                        <span class="ml-2">→</span>
+                    </a>
+
+                </div>
+
+            </div>
+
+            <!--  PRODUCT WINDOW  -->
+            <div class="relative z-10 w-[90%] max-w-[770px] mt-[70px] bg-[#1a1b20] border border-[#42434c] rounded-sm shadow-[0_25px_70px_rgba(0,0,0,.4)]">
+
+                <!-- Window header -->
+
+                <div class="h-6 px-2 flex items-center bg-[#0d0e11] border-b border-[#3b3c44]">
+
+                    <div class="flex gap-[5px]">
+                        <span class="w-[9px] h-[9px] rounded-full bg-[#8b665c]"></span>
+                        <span class="w-[9px] h-[9px] rounded-full bg-[#8a7567]"></span>
+                        <span class="w-[9px] h-[9px] rounded-full bg-[#70728d]"></span>
+
+                    </div>
+
+                </div>
+
+                <!-- Window body -->
+
+                <div class="p-[18px]  grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-3">
+
+                    <!-- Activity -->
+
+                    <div class="min-h-[192px] border border-[#42434d] bg-[#111216]">
+
+                        <div class="p-[9px] flex justify-between border-b border-[#34353d] text-[9px] font-semibold text-[#c7c7d0]">
+                            <span>ACTIVE SPRINT ACTIVITY</span>
+                            <span>#SP-492</span>
+                        </div>
+
+                        <div class="h-[165px] relative flex items-endpx-12 py-5">
+
+                            <div class="absolute left-0 right-0 bottom-[72px] border-t border-[#44475c]"></div>
+
+                            <div class="w-full flex items-end justify-around">
+
+                                <span class="w-[6px] h-6 bg-[#8f8ebf]"></span>
+
+                                <span class="w-[6px] h-12 bg-[#8f8ebf]"></span>
+
+                                <span class="w-[6px] h-9 bg-[#8f8ebf]"></span>
+
+                                <span class="w-[6px] h-[70px] bg-[#b7b5ff]"></span>
+
+                                <span class="w-[6px] h-[54px] bg-[#8f8ebf]"></span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <!-- AI suggestions -->
+
+                    <div class="min-h-[192px] border border-[#42434d] bg-[#111216]">
+
+                        <div class="p-[9px] border-b border-[#34353d] text-[9px] font-semibold">
+                            AI SUGGESTIONS
+                        </div>
+
+
+                        <div class="m-[6px] p-[10px] border border-[#32333c] bg-[#0d0e11]">
+
+                            <div class="text-[9px]">
+                                <span class="text-[#ffb36a]">♙</span>
+                                &nbsp; Optimize query in PR #102
+                            </div>
+
+                            <small class="block ml-5 mt-1 text-[7px] text-[#8d8d98]">
+                                Estimated save: 40ms
+                            </small>
+
+                        </div>
+
+                        <div class="m-[6px] p-[10px] border border-[#32333c] bg-[#0d0e11]">
+
+                            <div class="text-[9px]">
+                                <span class="text-[#55d7ff]">♙</span>
+                                &nbsp; Review security patch
+                            </div>
+
+                            <small class="block ml-5 mt-1 text-[7px] text-[#8d8d98]">
+                                High priority
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!--  TRUSTED  -->
+
+        <section class="min-h-[84px] flex flex-col items-center justify-center bg-[#0c0d10] border-y border-[#3b3c44]">
+
+            <p class="mb-2 text-[8px] font-bold tracking-[.7px]text-[#a6a6af]">
+                TRUSTED BY HIGH-PERFORMANCE TEAMS
+            </p>
+
+            <div class="flex flex-wrap justify-center gap-x-8 gap-y-3 text-[13px] font-semibold text-[#8d8e96]">
+                <span>Engineering</span>
+                <span>Startups</span>
+                <span>Student Teams</span>
+                <span>Remote</span>
+                <span>Open Source</span>
+            </div>
+
+        </section>
+
+        <!--  FEATURES  -->
+
+        <section class="max-w-[805px] mx-auto px-5 py-[70px]">
+
+            <div class="text-center mb-[30px]">
+
+                <h2 class="text-lg font-semibold">
+                    Everything you need to ship faster.
+                </h2>
+
+                <p class="mt-1 text-[11px] text-[#a3a3ad]">
+                    A deeply integrated suite of tools designed for technical workflows.
+                </p>
+
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+                <!-- Project Management -->
+
+                <article class="md:col-span-2 min-h-[198px] p-[18px] flex flex-col md:flex-row items-start md:items-center justify-between gap-5 border border-[#42434c] rounded-sm bg-[#1a1b1f]">
+
+                    <div class="max-w-[330px]">
+
+                        <div class="text-[17px] text-[#a9a7ff]"> ◫</div>
+
+                        <h3 class="mt-2.5 text-sm font-semibold"> Unified Project Management </h3>
+
+                        <p class="mt-1 text-[10px] leading-[1.35] text-[#c0c0c8]">
+                            Boards, sprints, and timelines that actually sync with your codebase. Keep context intact across every planning phase.
+                        </p>
+                    </div>
+
+                    <div class="w-full md:w-[245px] h-40 p-2 border border-[#34353e] bg-[#101115]">
+
+                        <div class="w-3/4 h-[18px] mb-2 bg-[#393a41]"></div>
+
+                        <div class="h-[55px] p-2 border border-[#292a31]">
+                            <div class="w-[65%] h-[6px] mb-2 bg-[#44454d]"></div>
+                            <div class="w-[35%] h-[6px] bg-[#44454d]"></div>
+                        </div>
+
+                        <div class="h-10 mt-1.5 p-2 border border-[#292a31]">
+                            <div class="w-[55%] h-[6px] bg-[#44454d]"></div>
+                        </div>
+
+                    </div>
+
+                </article>
+
+                <!-- AI Assistant -->
+
+                <article class="min-h-[198px] p-[18px] relative border border-[#42434c] rounded-sm bg-[#1a1b1f]">
+
+                    <div class="text-[17px] text-[#ffb36a]"> ♙</div>
+
+                    <h3 class="mt-2.5 text-sm font-semibold"> AI Engineering Assistant</h3>
+
+                    <p class="mt-1 text-[10px] leading-[1.35] text-[#c0c0c8]">
+                        Context-aware AI that helps draft PRs, review code, and answer architecture questions based on your internal docs.
+                    </p>
+
+                    <div class="absolute left-[18px] right-[18px] bottom-[18px] p-2 border border-[#303139] bg-[#101115] text-[9px] font-mono text-[#c9c8ff]">
+                        &gt; /suggest-fix src/auth.ts
+                    </div>
+
+                </article>
+
+                <!-- Real Time Collaboration -->
+
+                <article class="min-h-[126px] p-[18px] border border-[#42434c] rounded-sm bg-[#1a1b1f]">
+
+                    <div class="text-[17px] text-[#55d7ff]"> ▤</div>
+
+                    <h3 class="mt-2.5 text-sm font-semibold">  Real-Time Collaboration </h3>
+
+                    <p class="mt-1 text-[10px] leading-[1.35] text-[#c0c0c8]"> Threaded technical discussions tied directly to tasks and code snippets. No more losing context in chat apps.
+                    </p>
+
+                </article>
+
+                <!-- Analytics -->
+                <article class="min-h-[126px] p-[18px] flex flex-col md:flex-row items-start md:items-center justify-between gap-5 border border-[#42434c] rounded-sm bg-[#1a1b1f]">
+
+                    <div class="max-w-[260px]">
+
+                        <div class="text-[17px] text-[#a9a7ff]">▥</div>
+
+                        <h3 class="mt-2.5 text-sm font-semibold">  Intelligent Analytics</h3>
+
+                        <p class="mt-1 text-[10px] leading-[1.35] text-[#c0c0c8]"> Measure team velocity, cycle times, and bottleneck identification without manual reporting overhead.
+                        </p>
+
+                    </div>
+
+
+                    <div class="w-full md:w-[245px] h-[88px] p-[15px] flex items-end justify-around border border-[#303139] bg-[#101115]">
+
+                        <span class="w-3 h-[18px] bg-[#555566]"></span>
+                        <span class="w-3 h-[34px] bg-[#555566]"></span>
+                        <span class="w-3 h-6 bg-[#555566]"></span>
+                        <span class="w-3 h-[54px] bg-[#8581e9]"></span>
+                        <span class="w-3 h-[68px] bg-[#8581e9]"></span>
+                    </div>
+                </article>
+
+
+                <!-- Workflow Automation -->
+
+                <article class="md:col-span-2 min-h-[112px] p-[18px] flex flex-col md:flex-row items-start md:items-center justify-between gap-5 border border-[#42434c] rounded-sm bg-[#1a1b1f]">
+
+                    <div>
+                        <div class="text-[17px]"> ⊞</div>
+
+                        <h3 class="mt-2.5 text-sm font-semibold">   Workflow Automation</h3>
+
+                        <p class="mt-1 max-w-[480px]  text-[10px] leading-[1.35]  text-[#c0c0c8]">
+                            Trigger actions across your toolchain. When a PR is merged, update the ticket, deploy staging, and notify the channel—automatically.
+                        </p>
+
+                    </div>
+
+
+                    <a href="#" class="px-3 py-2 border border-[#4b4c56] text-[8px] font-bold whitespace-nowrap"> VIEW INTEGRATIONS
+                    </a>
+                </article>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>
