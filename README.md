@@ -1,3 +1,1 @@
 # CollabOS
-
-AI - generated
