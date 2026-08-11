@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CollabOS - Authentication</title>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+        rel="stylesheet" />
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+
+                    fontFamily: {
+                        inter: ["Inter", "sans-serif"]
+                    },
+
+                    colors: {
+
+                        background: "#111318",
+
+                        surface: "#1a1c20",
+
+                        card: "#1f2126",
+
+                        primary: "#C0C1FF",
+
+                        primaryDark: "#8083ff",
+
+                        borderColor: "#474954",
+
+                        textMuted: "#A7A9B8",
+
+                        secondary: "#7BD0FF"
+
+                    }
+
+                }
+            }
+        }
+    </script>
+
+    <style>
+
+        body{
+            font-family:Inter,sans-serif;
+        }
+
+        .grid-bg{
+
+            background-image:
+            linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),
+            linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);
+
+            background-size:32px 32px;
+
+        }
+
+        .glass{
+
+            backdrop-filter:blur(14px);
+
+            background:rgba(26,28,32,.55);
+
+        }
+
+    </style>
+
+</head>
+
+<body class="bg-background text-white">
+
+<div class="min-h-screen flex flex-col lg:flex-row">
+
+    <!-- ===========================
+            LEFT PANEL
+    ============================ -->
+
+    <section
+        class="hidden lg:flex
+               lg:w-1/2
+               relative
+               overflow-hidden
+               bg-[#0d0f14]
+               grid-bg
+               p-16
+               flex-col
+               justify-between">
+
+        <!-- Logo -->
+
+        <div class="flex items-center gap-3 z-10">
+
+            <span
+                class="material-symbols-outlined
+                text-primary
+                text-4xl">
+
+                dashboard_customize
+
+            </span>
+
+            <h2 class="text-3xl font-semibold">
+                CollabOS
+            </h2>
+
+        </div>
+
+        <!-- Hero Content -->
+
+        <div class="relative z-10 max-w-xl">
+
+            <h1
+                class="text-6xl
+                leading-tight
+                font-semibold">
+
+                High-performance environment for technical teams.
+
+            </h1>
+
+            <p
+                class="mt-8
+                text-xl
+                text-textMuted
+                leading-9">
+
+                Streamline your workflows,
+                manage complex projects,
+                and deploy faster with our
+                precision-engineered tools.
+
+            </p>
+
+        </div>
+
+        <!-- Decorative Blur -->
+
+        <div
+            class="absolute
+            -bottom-40
+            -right-24
+            h-[450px]
+            w-[450px]
+            rounded-full
+            bg-indigo-500/10
+            blur-3xl">
+
+        </div>
+
+    </section>
+
+    <!-- ===========================
+            RIGHT PANEL
+    ============================ -->
+
+    <section
+        class="w-full
+               lg:w-1/2
+               flex
+               justify-center
+               items-center
+               bg-background
+               px-6
+               py-10">
+
+        <div
+            class="w-full
+                   max-w-md">
+
+            <!-- Mobile Logo -->
+
+            <div
+                class="lg:hidden
+                       flex
+                       justify-center
+                       items-center
+                       gap-3
+                       mb-10">
+
+                <span
+                    class="material-symbols-outlined
+                    text-primary
+                    text-4xl">
+
+                    dashboard_customize
+
+                </span>
+
+                <h2
+                    class="text-3xl
+                    font-semibold">
+
+                    CollabOS
+
+                </h2>
+
+            </div>
+
+            <!-- Heading -->
+
+            <h1
+                class="text-4xl
+                font-semibold">
+
+                Welcome back
+
+            </h1>
+
+            <p
+                class="mt-3
+                text-textMuted">
+
+                Enter your credentials to access your workspace.
+
+            </p>
+
+            <!-- Tabs -->
+
+            <div
+                class="flex
+                mt-10
+                border-b
+                border-borderColor">
+
+                <button
+                    id="signinTab"
+                    class="flex-1
+                           py-4
+                           text-sm
+                           uppercase
+                           tracking-wider
+                           font-semibold
+                           border-b-2
+                           border-primary
+                           text-primary">
+
+                    Sign In
+
+                </button>
+
+                <button
+                    id="signupTab"
+                    class="flex-1
+                           py-4
+                           text-sm
+                           uppercase
+                           tracking-wider
+                           font-semibold
+                           text-textMuted
+                           hover:text-white
+                           transition">
+
+                    Create Account
+
+                </button>
+
+            </div>
+
+            <!-- FORM STARTS HERE -->
+                         <!-- Authentication Form -->
+
+            <form id="loginForm" class="mt-8 space-y-6">
+
+                <!-- Email -->
+
+                <div>
+
+                    <label
+                        for="email"
+                        class="block
+                               text-xs
+                               uppercase
+                               tracking-widest
+                               text-textMuted
+                               mb-2">
+
+                        Email Address
+
+                    </label>
+
+                    <input
+                        id="email"
+                        type="email"
+                        placeholder="user@domain.com"
+
+                        class="w-full
+                               bg-card
+                               border
+                               border-borderColor
+                               rounded-lg
+                               px-4
+                               py-3
+                               outline-none
+                               focus:border-primary
+                               focus:ring-2
+                               focus:ring-primary/30
+                               transition
+                               placeholder:text-gray-500">
+
+                </div>
+
+                <!-- Password -->
+
+                <div>
+
+                    <div class="flex justify-between items-center mb-2">
+
+                        <label
+                            for="password"
+                            class="text-xs
+                                   uppercase
+                                   tracking-widest
+                                   text-textMuted">
+
+                            Password
+
+                        </label>
+
+                        <a
+                            href="#"
+                            class="text-sm
+                                   text-primary
+                                   hover:underline">
+
+                            Forgot Password?
+
+                        </a>
+
+                    </div>
+
+                    <div class="relative">
+
+                        <input
+
+                            id="password"
+                            type="password"
+                            placeholder="••••••••"
+
+                            class="w-full
+                                   bg-card
+                                   border
+                                   border-borderColor
+                                   rounded-lg
+                                   px-4
+                                   py-3
+                                   pr-12
+                                   outline-none
+                                   focus:border-primary
+                                   focus:ring-2
+                                   focus:ring-primary/30
+                                   transition">
+
+                        <button
+
+                            type="button"
+
+                            id="togglePassword"
+
+                            class="absolute
+                                   right-4
+                                   top-1/2
+                                   -translate-y-1/2
+                                   text-gray-400
+                                   hover:text-white
+                                   transition">
+
+                            <span class="material-symbols-outlined">
+
+                                visibility_off
+
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <!-- Remember -->
+
+                <div class="flex items-center gap-3">
+
+                    <input
+
+                        id="remember"
+
+                        type="checkbox"
+
+                        class="h-4
+                               w-4
+                               rounded
+                               border-borderColor
+                               bg-card
+                               text-primary
+                               focus:ring-primary">
+
+                    <label
+                        for="remember"
+                        class="text-sm text-textMuted">
+
+                        Remember me on this device
+
+                    </label>
+
+                </div>
+
+                <!-- Error -->
+
+                <p
+                    id="errorMessage"
+                    class="hidden
+                           text-red-400
+                           text-sm">
+
+                    Invalid email or password.
+
+                </p>
+
+                <!-- Button -->
+
+                <button
+
+                    id="loginBtn"
+
+                    type="submit"
+
+                    class="w-full
+                           bg-primary
+                           text-black
+                           font-semibold
+                           rounded-lg
+                           py-3.5
+                           hover:bg-primaryDark
+                           hover:text-white
+                           transition-all
+                           duration-200
+                           active:scale-95">
+
+                    <span
+                        class="flex
+                               justify-center
+                               items-center
+                               gap-2">
+
+                        Sign In
+
+                        <span
+                            class="material-symbols-outlined
+                                   text-lg">
+
+                            arrow_forward
+
+                        </span>
+
+                    </span>
+
+                </button>
+
+            </form>
+
+            <!-- Divider -->
+
+            <div class="flex items-center my-8">
+
+                <div class="flex-1 border-t border-borderColor"></div>
+
+                <span
+                    class="px-4
+                           text-xs
+                           uppercase
+                           tracking-widest
+                           text-textMuted">
+
+                    Or continue with
+
+                </span>
+
+                <div class="flex-1 border-t border-borderColor"></div>
+
+            </div>
+
+            <!-- Social Buttons -->
+
+            <div class="grid grid-cols-2 gap-4">
+
+                <button
+
+                    class="flex
+                           items-center
+                           justify-center
+                           gap-2
+                           border
+                           border-borderColor
+                           rounded-lg
+                           py-3
+                           hover:bg-card
+                           transition">
+
+                    <span
+                        class="material-symbols-outlined">
+
+                        code
+
+                    </span>
+
+                    GitHub
+
+                </button>
+
+                <button
+
+                    class="flex
+                           items-center
+                           justify-center
+                           gap-2
+                           border
+                           border-borderColor
+                           rounded-lg
+                           py-3
+                           hover:bg-card
+                           transition">
+
+                    <span
+                        class="material-symbols-outlined">
+
+                        mail
+
+                    </span>
+
+                    Google
+
+                </button>
+
+            </div>
+
+            <!-- Footer -->
+
+            <div class="mt-10 text-center">
+
+                <p
+                    class="text-sm
+                           text-gray-500">
+
+                    System Status :
+
+                    <span class="text-secondary">
+
+                        All Systems Operational
+
+                    </span>
+
+                </p>
+
+            </div>
+                        <!-- End Right Panel -->
+        </div>
+
+    </section>
+
+</div>
+
+<!-- ===========================
+        JAVASCRIPT
+=========================== -->
+
+<script>
+
+const passwordInput = document.getElementById("password");
+const togglePassword = document.getElementById("togglePassword");
+const passwordIcon = togglePassword.querySelector("span");
+
+togglePassword.addEventListener("click", () => {
+
+    if (passwordInput.type === "password") {
+
+        passwordInput.type = "text";
+        passwordIcon.innerText = "visibility";
+
+    } else {
+
+        passwordInput.type = "password";
+        passwordIcon.innerText = "visibility_off";
+
+    }
+
+});
+
+
+const loginForm = document.getElementById("loginForm");
+const loginBtn = document.getElementById("loginBtn");
+const errorMessage = document.getElementById("errorMessage");
+
+loginForm.addEventListener("submit", function(e){
+
+    e.preventDefault();
+
+    errorMessage.classList.add("hidden");
+
+    const email = document.getElementById("email").value.trim();
+    const password = passwordInput.value.trim();
+
+    if(email === ""){
+
+        errorMessage.innerText = "Please enter your email.";
+        errorMessage.classList.remove("hidden");
+        return;
+
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if(!emailRegex.test(email)){
+
+        errorMessage.innerText = "Please enter a valid email address.";
+        errorMessage.classList.remove("hidden");
+        return;
+
+    }
+
+    if(password.length < 8){
+
+        errorMessage.innerText = "Password must be at least 8 characters.";
+        errorMessage.classList.remove("hidden");
+        return;
+
+    }
+
+    loginBtn.disabled = true;
+
+    loginBtn.innerHTML = `
+        <svg class="animate-spin h-5 w-5 mx-auto"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24">
+
+            <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4">
+            </circle>
+
+            <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4l3-3-3-3v4A10 10 0 002 12h2z">
+            </path>
+
+        </svg>
+    `;
+
+    setTimeout(() => {
+
+        loginBtn.innerHTML = `
+            <span class="flex justify-center items-center gap-2">
+
+                Login Successful
+
+                <span class="material-symbols-outlined">
+
+                    check_circle
+
+                </span>
+
+            </span>
+        `;
+
+        loginBtn.classList.remove("bg-primary");
+        loginBtn.classList.add("bg-green-500","text-white");
+
+    },1500);
+
+});
+
+
+const signInTab = document.getElementById("signinTab");
+const signUpTab = document.getElementById("signupTab");
+
+signInTab.addEventListener("click",function(){
+
+    signInTab.classList.add(
+        "border-primary",
+        "text-primary"
+    );
+
+    signUpTab.classList.remove(
+        "border-primary",
+        "text-primary"
+    );
+
+    signUpTab.classList.add(
+        "text-textMuted"
+    );
+
+});
+
+
+signUpTab.addEventListener("click",function(){
+
+    signUpTab.classList.add(
+        "border-primary",
+        "text-primary"
+    );
+
+    signInTab.classList.remove(
+        "border-primary",
+        "text-primary"
+    );
+
+    signInTab.classList.add(
+        "text-textMuted"
+    );
+
+});
+
+</script>
+
+</body>
+</html>
