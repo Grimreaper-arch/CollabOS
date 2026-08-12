@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>CollabOS - Authentication</title>
+    <title>CollabOS - Create Account</title>
 
     <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -13,75 +13,51 @@
     <!-- Inter Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Material Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
-        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
 
     <script>
         tailwind.config = {
             darkMode: "class",
             theme: {
                 extend: {
-
                     fontFamily: {
                         inter: ["Inter", "sans-serif"]
                     },
-
                     colors: {
-
                         background: "#111318",
-
                         surface: "#1a1c20",
-
                         card: "#1f2126",
-
                         primary: "#C0C1FF",
-
                         primaryDark: "#8083ff",
-
                         borderColor: "#474954",
-
                         textMuted: "#A7A9B8",
-
                         secondary: "#7BD0FF"
-
                     }
-
                 }
             }
         }
     </script>
 
     <style>
-
-        body{
-            font-family:Inter,sans-serif;
+        body {
+            font-family: Inter, sans-serif;
         }
 
-        .grid-bg{
-
+        .grid-bg {
             background-image:
-            linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),
-            linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);
-
-            background-size:32px 32px;
-
+                linear-gradient(rgba(255, 255, 255, .05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, .05) 1px, transparent 1px);
+            background-size: 32px 32px;
         }
 
-        .glass{
-
-            backdrop-filter:blur(14px);
-
-            background:rgba(26,28,32,.55);
-
+        .glass {
+            backdrop-filter: blur(14px);
+            background: rgba(26, 28, 32, .55);
         }
-
     </style>
-
 </head>
 
 <body class="bg-background text-white">
@@ -91,485 +67,185 @@
     <!-- ===========================
             LEFT PANEL
     ============================ -->
-
-    <section
-        class="hidden lg:flex
-               lg:w-1/2
-               relative
-               overflow-hidden
-               bg-[#0d0f14]
-               grid-bg
-               p-16
-               flex-col
-               justify-between">
+    <section class="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-[#0d0f14] grid-bg p-12 xl:p-16 flex-col justify-between">
 
         <!-- Logo -->
-
         <div class="flex items-center gap-3 z-10">
-
-            <span
-                class="material-symbols-outlined
-                text-primary
-                text-4xl">
-
+            <span class="material-symbols-outlined text-primary text-4xl">
                 dashboard_customize
-
             </span>
-
             <h2 class="text-3xl font-semibold">
                 CollabOS
             </h2>
+        </div>
 
+        <!-- Dashboard Image Card in Free Space -->
+        <div class="relative z-10 my-8">
+            <div class="relative rounded-2xl overflow-hidden border border-borderColor/60 shadow-2xl bg-card/60 glass">
+                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80" 
+                     alt="CollabOS Platform Preview" 
+                     class="w-full h-56 xl:h-64 object-cover object-top opacity-90 hover:scale-105 transition duration-500">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#0d0f14] via-transparent to-transparent"></div>
+                <div class="absolute bottom-4 left-6 right-6 flex items-center justify-between">
+                    <span class="text-xs uppercase tracking-widest text-secondary font-medium">Real-time Engineering Metrics</span>
+                    <span class="flex items-center gap-1 text-xs text-green-400">
+                        <span class="h-2 w-2 rounded-full bg-green-400 animate-pulse"></span>
+                        Live Demo
+                    </span>
+                </div>
+            </div>
         </div>
 
         <!-- Hero Content -->
-
         <div class="relative z-10 max-w-xl">
-
-            <h1
-                class="text-6xl
-                leading-tight
-                font-semibold">
-
-                High-performance environment for technical teams.
-
+            <h1 class="text-4xl xl:text-5xl leading-tight font-semibold">
+                Join the platform built for engineering velocity.
             </h1>
-
-            <p
-                class="mt-8
-                text-xl
-                text-textMuted
-                leading-9">
-
-                Streamline your workflows,
-                manage complex projects,
-                and deploy faster with our
-                precision-engineered tools.
-
+            <p class="mt-4 text-lg text-textMuted leading-relaxed">
+                Create your workspace in seconds, invite your engineering team, and accelerate your development lifecycle.
             </p>
-
         </div>
 
         <!-- Decorative Blur -->
-
-        <div
-            class="absolute
-            -bottom-40
-            -right-24
-            h-[450px]
-            w-[450px]
-            rounded-full
-            bg-indigo-500/10
-            blur-3xl">
-
-        </div>
+        <div class="absolute -bottom-40 -right-24 h-[450px] w-[450px] rounded-full bg-indigo-500/10 blur-3xl"></div>
 
     </section>
 
     <!-- ===========================
             RIGHT PANEL
     ============================ -->
+    <section class="w-full lg:w-1/2 flex justify-center items-center bg-background px-6 py-10">
 
-    <section
-        class="w-full
-               lg:w-1/2
-               flex
-               justify-center
-               items-center
-               bg-background
-               px-6
-               py-10">
-
-        <div
-            class="w-full
-                   max-w-md">
+        <div class="w-full max-w-md">
 
             <!-- Mobile Logo -->
-
-            <div
-                class="lg:hidden
-                       flex
-                       justify-center
-                       items-center
-                       gap-3
-                       mb-10">
-
-                <span
-                    class="material-symbols-outlined
-                    text-primary
-                    text-4xl">
-
+            <div class="lg:hidden flex justify-center items-center gap-3 mb-10">
+                <span class="material-symbols-outlined text-primary text-4xl">
                     dashboard_customize
-
                 </span>
-
-                <h2
-                    class="text-3xl
-                    font-semibold">
-
+                <h2 class="text-3xl font-semibold">
                     CollabOS
-
                 </h2>
-
             </div>
 
             <!-- Heading -->
-
-            <h1
-                class="text-4xl
-                font-semibold">
-
-                Welcome back
-
+            <h1 class="text-4xl font-semibold">
+                Create account
             </h1>
-
-            <p
-                class="mt-3
-                text-textMuted">
-
-                Enter your credentials to access your workspace.
-
+            <p class="mt-3 text-textMuted">
+                Get started with your free 14-day workspace trial.
             </p>
 
             <!-- Tabs -->
-
-            <div
-                class="flex
-                mt-10
-                border-b
-                border-borderColor">
-
-                <button
-                    id="signinTab"
-                    class="flex-1
-                           py-4
-                           text-sm
-                           uppercase
-                           tracking-wider
-                           font-semibold
-                           border-b-2
-                           border-primary
-                           text-primary">
-
+            <div class="flex mt-10 border-b border-borderColor">
+                <button id="signinTab" class="flex-1 py-4 text-sm uppercase tracking-wider font-semibold text-textMuted hover:text-white transition">
                     Sign In
-
                 </button>
-
-                <button
-                    id="signupTab"
-                    class="flex-1
-                           py-4
-                           text-sm
-                           uppercase
-                           tracking-wider
-                           font-semibold
-                           text-textMuted
-                           hover:text-white
-                           transition">
-
+                <button id="signupTab" class="flex-1 py-4 text-sm uppercase tracking-wider font-semibold border-b-2 border-primary text-primary">
                     Create Account
-
                 </button>
-
             </div>
 
-            <!-- FORM STARTS HERE -->
-                         <!-- Authentication Form -->
+            <!-- Authentication Form -->
+            <form id="signupForm" class="mt-8 space-y-5">
 
-            <form id="loginForm" class="mt-8 space-y-6">
+                <!-- Full Name -->
+                <div>
+                    <label for="fullName" class="block text-xs uppercase tracking-widest text-textMuted mb-2">
+                        Full Name
+                    </label>
+                    <input id="fullName" type="text" placeholder="Alex Mercer"
+                        class="w-full bg-card border border-borderColor rounded-lg px-4 py-3 outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition placeholder:text-gray-500">
+                </div>
 
                 <!-- Email -->
-
                 <div>
-
-                    <label
-                        for="email"
-                        class="block
-                               text-xs
-                               uppercase
-                               tracking-widest
-                               text-textMuted
-                               mb-2">
-
-                        Email Address
-
+                    <label for="email" class="block text-xs uppercase tracking-widest text-textMuted mb-2">
+                        Work Email Address
                     </label>
-
-                    <input
-                        id="email"
-                        type="email"
-                        placeholder="user@domain.com"
-
-                        class="w-full
-                               bg-card
-                               border
-                               border-borderColor
-                               rounded-lg
-                               px-4
-                               py-3
-                               outline-none
-                               focus:border-primary
-                               focus:ring-2
-                               focus:ring-primary/30
-                               transition
-                               placeholder:text-gray-500">
-
+                    <input id="email" type="email" placeholder="alex@company.com"
+                        class="w-full bg-card border border-borderColor rounded-lg px-4 py-3 outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition placeholder:text-gray-500">
                 </div>
 
                 <!-- Password -->
-
                 <div>
-
-                    <div class="flex justify-between items-center mb-2">
-
-                        <label
-                            for="password"
-                            class="text-xs
-                                   uppercase
-                                   tracking-widest
-                                   text-textMuted">
-
-                            Password
-
-                        </label>
-
-                        <a
-                            href="#"
-                            class="text-sm
-                                   text-primary
-                                   hover:underline">
-
-                            Forgot Password?
-
-                        </a>
-
-                    </div>
-
+                    <label for="password" class="block text-xs uppercase tracking-widest text-textMuted mb-2">
+                        Password
+                    </label>
                     <div class="relative">
-
-                        <input
-
-                            id="password"
-                            type="password"
-                            placeholder="••••••••"
-
-                            class="w-full
-                                   bg-card
-                                   border
-                                   border-borderColor
-                                   rounded-lg
-                                   px-4
-                                   py-3
-                                   pr-12
-                                   outline-none
-                                   focus:border-primary
-                                   focus:ring-2
-                                   focus:ring-primary/30
-                                   transition">
-
-                        <button
-
-                            type="button"
-
-                            id="togglePassword"
-
-                            class="absolute
-                                   right-4
-                                   top-1/2
-                                   -translate-y-1/2
-                                   text-gray-400
-                                   hover:text-white
-                                   transition">
-
+                        <input id="password" type="password" placeholder="Minimum 8 characters"
+                            class="w-full bg-card border border-borderColor rounded-lg px-4 py-3 pr-12 outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition">
+                        <button type="button" id="togglePassword" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition">
                             <span class="material-symbols-outlined">
-
                                 visibility_off
-
                             </span>
-
                         </button>
-
                     </div>
-
                 </div>
 
-                <!-- Remember -->
-
-                <div class="flex items-center gap-3">
-
-                    <input
-
-                        id="remember"
-
-                        type="checkbox"
-
-                        class="h-4
-                               w-4
-                               rounded
-                               border-borderColor
-                               bg-card
-                               text-primary
-                               focus:ring-primary">
-
-                    <label
-                        for="remember"
-                        class="text-sm text-textMuted">
-
-                        Remember me on this device
-
+                <!-- Terms & Conditions -->
+                <div class="flex items-start gap-3 pt-1">
+                    <input id="terms" type="checkbox"
+                        class="h-4 w-4 rounded border-borderColor bg-card text-primary focus:ring-primary mt-1">
+                    <label for="terms" class="text-sm text-textMuted leading-normal">
+                        I agree to the <a href="#" class="text-primary hover:underline">Terms of Service</a> and <a href="#" class="text-primary hover:underline">Privacy Policy</a>.
                     </label>
-
                 </div>
 
                 <!-- Error -->
-
-                <p
-                    id="errorMessage"
-                    class="hidden
-                           text-red-400
-                           text-sm">
-
-                    Invalid email or password.
-
+                <p id="errorMessage" class="hidden text-red-400 text-sm">
+                    Please fill out all required fields.
                 </p>
 
-                <!-- Button -->
-
-                <button
-
-                    id="loginBtn"
-
-                    type="submit"
-
-                    class="w-full
-                           bg-primary
-                           text-black
-                           font-semibold
-                           rounded-lg
-                           py-3.5
-                           hover:bg-primaryDark
-                           hover:text-white
-                           transition-all
-                           duration-200
-                           active:scale-95">
-
-                    <span
-                        class="flex
-                               justify-center
-                               items-center
-                               gap-2">
-
-                        Sign In
-
-                        <span
-                            class="material-symbols-outlined
-                                   text-lg">
-
+                <!-- Submit Button -->
+                <button id="signupBtn" type="submit"
+                    class="w-full bg-primary text-black font-semibold rounded-lg py-3.5 hover:bg-primaryDark hover:text-white transition-all duration-200 active:scale-95">
+                    <span class="flex justify-center items-center gap-2">
+                        Create Account
+                        <span class="material-symbols-outlined text-lg">
                             arrow_forward
-
                         </span>
-
                     </span>
-
                 </button>
 
             </form>
 
             <!-- Divider -->
-
             <div class="flex items-center my-8">
-
                 <div class="flex-1 border-t border-borderColor"></div>
-
-                <span
-                    class="px-4
-                           text-xs
-                           uppercase
-                           tracking-widest
-                           text-textMuted">
-
-                    Or continue with
-
+                <span class="px-4 text-xs uppercase tracking-widest text-textMuted">
+                    Or sign up with
                 </span>
-
                 <div class="flex-1 border-t border-borderColor"></div>
-
             </div>
 
             <!-- Social Buttons -->
-
             <div class="grid grid-cols-2 gap-4">
-
-                <button
-
-                    class="flex
-                           items-center
-                           justify-center
-                           gap-2
-                           border
-                           border-borderColor
-                           rounded-lg
-                           py-3
-                           hover:bg-card
-                           transition">
-
-                    <span
-                        class="material-symbols-outlined">
-
+                <button class="flex items-center justify-center gap-2 border border-borderColor rounded-lg py-3 hover:bg-card transition">
+                    <span class="material-symbols-outlined">
                         code
-
                     </span>
-
                     GitHub
-
                 </button>
 
-                <button
-
-                    class="flex
-                           items-center
-                           justify-center
-                           gap-2
-                           border
-                           border-borderColor
-                           rounded-lg
-                           py-3
-                           hover:bg-card
-                           transition">
-
-                    <span
-                        class="material-symbols-outlined">
-
+                <button class="flex items-center justify-center gap-2 border border-borderColor rounded-lg py-3 hover:bg-card transition">
+                    <span class="material-symbols-outlined">
                         mail
-
                     </span>
-
                     Google
-
                 </button>
-
             </div>
 
             <!-- Footer -->
-
             <div class="mt-10 text-center">
-
-                <p
-                    class="text-sm
-                           text-gray-500">
-
+                <p class="text-sm text-gray-500">
                     System Status :
-
                     <span class="text-secondary">
-
                         All Systems Operational
-
                     </span>
-
                 </p>
-
             </div>
-                        <!-- End Right Panel -->
+
         </div>
 
     </section>
@@ -579,158 +255,101 @@
 <!-- ===========================
         JAVASCRIPT
 =========================== -->
-
 <script>
 
-const passwordInput = document.getElementById("password");
-const togglePassword = document.getElementById("togglePassword");
-const passwordIcon = togglePassword.querySelector("span");
+    const passwordInput = document.getElementById("password");
+    const togglePassword = document.getElementById("togglePassword");
+    const passwordIcon = togglePassword.querySelector("span");
 
-togglePassword.addEventListener("click", () => {
+    togglePassword.addEventListener("click", () => {
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            passwordIcon.innerText = "visibility";
+        } else {
+            passwordInput.type = "password";
+            passwordIcon.innerText = "visibility_off";
+        }
+    });
 
-    if (passwordInput.type === "password") {
+    const signupForm = document.getElementById("signupForm");
+    const signupBtn = document.getElementById("signupBtn");
+    const errorMessage = document.getElementById("errorMessage");
 
-        passwordInput.type = "text";
-        passwordIcon.innerText = "visibility";
+    signupForm.addEventListener("submit", function (e) {
+        e.preventDefault();
 
-    } else {
+        errorMessage.classList.add("hidden");
 
-        passwordInput.type = "password";
-        passwordIcon.innerText = "visibility_off";
+        const fullName = document.getElementById("fullName").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const password = passwordInput.value.trim();
+        const terms = document.getElementById("terms").checked;
 
-    }
+        if (fullName === "") {
+            errorMessage.innerText = "Please enter your full name.";
+            errorMessage.classList.remove("hidden");
+            return;
+        }
 
-});
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            errorMessage.innerText = "Please enter a valid work email address.";
+            errorMessage.classList.remove("hidden");
+            return;
+        }
 
+        if (password.length < 8) {
+            errorMessage.innerText = "Password must be at least 8 characters.";
+            errorMessage.classList.remove("hidden");
+            return;
+        }
 
-const loginForm = document.getElementById("loginForm");
-const loginBtn = document.getElementById("loginBtn");
-const errorMessage = document.getElementById("errorMessage");
+        if (!terms) {
+            errorMessage.innerText = "You must agree to the Terms and Privacy Policy.";
+            errorMessage.classList.remove("hidden");
+            return;
+        }
 
-loginForm.addEventListener("submit", function(e){
+        signupBtn.disabled = true;
 
-    e.preventDefault();
-
-    errorMessage.classList.add("hidden");
-
-    const email = document.getElementById("email").value.trim();
-    const password = passwordInput.value.trim();
-
-    if(email === ""){
-
-        errorMessage.innerText = "Please enter your email.";
-        errorMessage.classList.remove("hidden");
-        return;
-
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if(!emailRegex.test(email)){
-
-        errorMessage.innerText = "Please enter a valid email address.";
-        errorMessage.classList.remove("hidden");
-        return;
-
-    }
-
-    if(password.length < 8){
-
-        errorMessage.innerText = "Password must be at least 8 characters.";
-        errorMessage.classList.remove("hidden");
-        return;
-
-    }
-
-    loginBtn.disabled = true;
-
-    loginBtn.innerHTML = `
-        <svg class="animate-spin h-5 w-5 mx-auto"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24">
-
-            <circle
-                class="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                stroke-width="4">
-            </circle>
-
-            <path
-                class="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8v4l3-3-3-3v4A10 10 0 002 12h2z">
-            </path>
-
-        </svg>
-    `;
-
-    setTimeout(() => {
-
-        loginBtn.innerHTML = `
-            <span class="flex justify-center items-center gap-2">
-
-                Login Successful
-
-                <span class="material-symbols-outlined">
-
-                    check_circle
-
-                </span>
-
-            </span>
+        signupBtn.innerHTML = `
+            <svg class="animate-spin h-5 w-5 mx-auto"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4A10 10 0 002 12h2z"></path>
+            </svg>
         `;
 
-        loginBtn.classList.remove("bg-primary");
-        loginBtn.classList.add("bg-green-500","text-white");
+        setTimeout(() => {
+            signupBtn.innerHTML = `
+                <span class="flex justify-center items-center gap-2">
+                    Account Created
+                    <span class="material-symbols-outlined">
+                        check_circle
+                    </span>
+                </span>
+            `;
+            signupBtn.classList.remove("bg-primary");
+            signupBtn.classList.add("bg-green-500", "text-white");
+        }, 1500);
+    });
 
-    },1500);
+    const signInTab = document.getElementById("signinTab");
+    const signUpTab = document.getElementById("signupTab");
 
-});
+    signInTab.addEventListener("click", function () {
+        signInTab.classList.add("border-primary", "text-primary");
+        signUpTab.classList.remove("border-primary", "text-primary");
+        signUpTab.classList.add("text-textMuted");
+    });
 
-
-const signInTab = document.getElementById("signinTab");
-const signUpTab = document.getElementById("signupTab");
-
-signInTab.addEventListener("click",function(){
-
-    signInTab.classList.add(
-        "border-primary",
-        "text-primary"
-    );
-
-    signUpTab.classList.remove(
-        "border-primary",
-        "text-primary"
-    );
-
-    signUpTab.classList.add(
-        "text-textMuted"
-    );
-
-});
-
-
-signUpTab.addEventListener("click",function(){
-
-    signUpTab.classList.add(
-        "border-primary",
-        "text-primary"
-    );
-
-    signInTab.classList.remove(
-        "border-primary",
-        "text-primary"
-    );
-
-    signInTab.classList.add(
-        "text-textMuted"
-    );
-
-});
+    signUpTab.addEventListener("click", function () {
+        signUpTab.classList.add("border-primary", "text-primary");
+        signInTab.classList.remove("border-primary", "text-primary");
+        signInTab.classList.add("text-textMuted");
+    });
 
 </script>
 
