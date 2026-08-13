@@ -2,6 +2,17 @@ const loginForm = document.getElementById("loginForm");
 const loginBtn = document.getElementById("loginBtn");
 const errorMessage = document.getElementById("errorMessage");
 
+window.addEventListener("load", () => {
+    document.body.classList.add("loaded");
+});
+
+function navigate(url){
+    document.body.classList.remove("loaded");
+    document.body.classList.add("fade-out");
+
+    setTimeout(()=>{window.location.href = url;},300);
+}
+
 loginForm.addEventListener("submit", function(e){
     e.preventDefault();
     errorMessage.classList.add("hidden");

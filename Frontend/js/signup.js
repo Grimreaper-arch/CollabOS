@@ -1,6 +1,18 @@
 const passwordInput = document.getElementById("password");
 const togglePassword = document.getElementById("togglePassword");
 const passwordIcon = togglePassword.querySelector("span");
+
+window.addEventListener("load", () => {
+    document.body.classList.add("loaded");
+});
+
+function navigate(url){
+    document.body.classList.remove("loaded");
+    document.body.classList.add("fade-out");
+
+    setTimeout(()=>{window.location.href = url;},300);
+}
+
 togglePassword.addEventListener("click", () => {
     if(passwordInput.type === "password"){
         passwordInput.type = "text";
@@ -94,5 +106,5 @@ signupForm.addEventListener("submit", function(e){
 const signInTab = document.getElementById("signinTab");
 const signUpTab = document.getElementById("signupTab");
 
-signInTab.addEventListener("click",()=>{window.location.href="login.html";});
-signUpTab.addEventListener("click",()=>{window.location.href="signup.html";});
+signInTab.addEventListener("click",()=>{navigate("login.html");});
+signUpTab.addEventListener("click",()=>{navigate("signup.html");});
