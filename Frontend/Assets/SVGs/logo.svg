@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+    <style>
+        .symbol {
+            fill: none;
+            stroke: #E0E5E8;
+            stroke-width: 15.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .solid-fill {
+            fill: #E0E5E8;
+            stroke: none;
+        }
+    </style>
+
+    <!-- Center Solid Circle -->
+    <circle
+        cx="250"
+        cy="250"
+        r="37"
+        class="solid-fill"
+    />
+
+    <!-- Innermost Ring -->
+    <circle
+        cx="250"
+        cy="250"
+        r="71"
+        class="symbol"
+    />
+
+    <!-- Middle Ring -->
+    <circle
+        cx="250"
+        cy="250"
+        r="111"
+        class="symbol"
+    />
+
+    <!-- Outer Ring -->
+    <circle
+        cx="250"
+        cy="250"
+        r="191"
+        class="symbol"
+    />
+
+    <!-- Ring 3 Top-Left Arc -->
+    <path
+        d="M 356.77 143.23 A 151 151 0 0 0 143.23 356.77"
+        class="symbol"
+        stroke-linecap="butt"
+    />
+
+    <!-- Ring 3 Bottom-Right Arc -->
+    <path
+        d="M 389.03 190.99 A 151 151 0 0 1 143.23 356.77"
+        class="symbol"
+        stroke-linecap="square"
+    />
+
+    <!-- Top-Right Connecting Bar -->
+    <line
+        x1="300.21"
+        y1="199.79"
+        x2="356.77"
+        y2="143.23"
+        class="symbol"
+        stroke-linecap="square"
+    />
+
+    <!-- Bottom-Left Connecting Bar -->
+    <line
+        x1="199.79"
+        y1="300.21"
+        x2="143.23"
+        y2="356.77"
+        class="symbol"
+        stroke-linecap="square"
+    />
+</svg>

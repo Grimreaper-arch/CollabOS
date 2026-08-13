@@ -1,0 +1,7 @@
+ <svg class="w-5 h-5 text-[#55d7ff]" 
+     xmlns="http://www.w3.org/2000/svg"
+
+viewBox="0 0 24 24" fill="none" stroke="#55d7ff" stroke-width="2">
+                            <path d="M4 16l6-6 4 4 6-7"></path>
+                            <path d="M16 7h4v4"></path>
+                        </svg>
