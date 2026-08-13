@@ -48,6 +48,12 @@
             backdrop-filter: blur(14px);
             background: rgba(26, 28, 32, .55);
         }
+        body{
+            opacity:0;
+            transition:opacity .35s ease;
+        }
+        body.loaded{opacity:1;}
+        body.fade-out{opacity:0;}
     </style>
 </head>
 
