@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>CollabOS - Sign In</title>
+    <title>CollabOS - Create Account</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -38,12 +38,14 @@
 
     <style>
         body {font-family: Inter, sans-serif;}
+
         .grid-bg {
             background-image:
                 linear-gradient(rgba(255, 255, 255, .05) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(255, 255, 255, .05) 1px, transparent 1px);
             background-size: 32px 32px;
         }
+
         .glass {
             backdrop-filter: blur(14px);
             background: rgba(26, 28, 32, .55);
@@ -52,10 +54,9 @@
 </head>
 
 <body class="bg-background text-white">
+
 <div class="min-h-screen flex flex-col lg:flex-row">
-
     <section class="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-[#0d0f14] grid-bg p-12 xl:p-16 flex-col justify-between">
-
         <div class="flex items-center gap-3 z-10">
             <img src="logo.png" alt="CollabOS Logo" class="h-10 w-auto">
             <h2 class="text-3xl font-semibold">CollabOS</h2>
@@ -72,32 +73,33 @@
 
         <div class="relative z-10 max-w-xl">
             <h1 class="text-4xl xl:text-5xl leading-tight font-semibold">Join the platform built for engineering velocity.</h1>
-            <p class="mt-4 text-lg text-textMuted leading-relaxed">
-                Create your workspace in seconds, invite your engineering team, and accelerate your development lifecycle.
-            </p>
+            <p class="mt-4 text-lg text-textMuted leading-relaxed">Create your workspace in seconds, invite your engineering team, and accelerate your development lifecycle.</p>
         </div>
 
         <div class="absolute -bottom-40 -right-24 h-[450px] w-[450px] rounded-full bg-indigo-500/10 blur-3xl"></div>
+
     </section>
 
     <section class="w-full lg:w-1/2 flex justify-center items-center bg-background px-6 py-10">
-
         <div class="w-full max-w-md">
             <div class="lg:hidden flex justify-center items-center gap-3 mb-10">
                 <span class="material-symbols-outlined text-primary text-4xl">dashboard_customize</span>
                 <h2 class="text-3xl font-semibold">CollabOS</h2>
             </div>
 
-            <h1 class="text-4xl font-semibold">Sign In</h1>
+            <h1 class="text-4xl font-semibold">Create account</h1>
 
             <div class="flex mt-10 border-b border-borderColor">
-                <button id="signinTab"class="flex-1 py-4 text-sm uppercase tracking-wider font-semibold border-b-2 border-primary text-primary">Sign In</button>
-
-                <button id="signupTab"
-                    class="flex-1 py-4 text-sm uppercase tracking-wider font-semibold text-textMuted">Create Account</button>
+                <button id="signinTab" class="flex-1 py-4 text-sm uppercase tracking-wider font-semibold text-textMuted hover:text-white transition">Sign In</button>
+                <button id="signupTab" class="flex-1 py-4 text-sm uppercase tracking-wider font-semibold border-b-2 border-primary text-primary">Create Account</button>
             </div>
 
-            <form id="loginForm" class="mt-8 space-y-5">
+            <form id="signupForm" class="mt-8 space-y-5">
+                <div>
+                    <label for="fullName" class="block text-xs uppercase tracking-widest text-textMuted mb-2">Full Name</label>
+                    <input id="fullName" type="text" placeholder="Alex Mercer"
+                        class="w-full bg-card border border-borderColor rounded-lg px-4 py-3 outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition placeholder:text-gray-500">
+                </div>
 
                 <div>
                     <label for="email" class="block text-xs uppercase tracking-widest text-textMuted mb-2">Work Email Address</label>
@@ -116,12 +118,20 @@
                     </div>
                 </div>
 
+                <div class="flex items-start gap-3 pt-1">
+                    <input id="terms" type="checkbox"
+                        class="h-4 w-4 rounded border-borderColor bg-card text-primary focus:ring-primary mt-1">
+                    <label for="terms" class="text-sm text-textMuted leading-normal">
+                        I agree to the <a href="#" class="text-primary hover:underline">Terms of Service</a> and <a href="#" class="text-primary hover:underline">Privacy Policy</a>.
+                    </label>
+                </div>
+
                 <p id="errorMessage" class="hidden text-red-400 text-sm">Please fill out all required fields.</p>
 
-                <button id="loginBtn" type="submit"
+                <button id="signupBtn" type="submit"
                     class="w-full bg-primary text-black font-semibold rounded-lg py-3.5 hover:bg-primaryDark hover:text-white transition-all duration-200 active:scale-95">
                     <span class="flex justify-center items-center gap-2">
-                        Sign In
+                        Create Account
                         <span class="material-symbols-outlined text-lg">arrow_forward</span>
                     </span>
                 </button>
@@ -129,7 +139,7 @@
 
             <div class="flex items-center my-8">
                 <div class="flex-1 border-t border-borderColor"></div>
-                <span class="px-4 text-xs uppercase tracking-widest text-textMuted">Or sign in with</span>
+                <span class="px-4 text-xs uppercase tracking-widest text-textMuted">Or sign up with</span>
                 <div class="flex-1 border-t border-borderColor"></div>
             </div>
 
@@ -137,14 +147,13 @@
                 <button class="flex items-center justify-center gap-2 border border-borderColor rounded-lg py-3 hover:bg-card transition">
                     <span class="material-symbols-outlined">code</span>GitHub
                 </button>
-
                 <button class="flex items-center justify-center gap-2 border border-borderColor rounded-lg py-3 hover:bg-card transition">
-                    <span class="material-symbols-outlined"> mail</span> Google
+                    <span class="material-symbols-outlined">mail</span>Google
                 </button>
             </div>
         </div>
     </section>
 </div>
-<script src="login.js"></script>
+<script src="signup.js"></script>
 </body>
 </html>
