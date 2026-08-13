@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>CollabOS - Board View</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#0c0e12",
+                        "on-primary": "#1000a9",
+                        "on-tertiary": "#4f2500",
+                        "secondary-container": "#00a6e0",
+                        "primary-fixed-dim": "#c0c1ff",
+                        "surface-container-low": "#1a1c20",
+                        "on-secondary-container": "#00374d",
+                        "on-primary-fixed-variant": "#2f2ebe",
+                        "error-container": "#93000a",
+                        "outline": "#908fa0",
+                        "on-secondary-fixed": "#001e2c",
+                        "surface-variant": "#333539",
+                        "on-surface-variant": "#c7c4d7",
+                        "surface-dim": "#111318",
+                        "tertiary-fixed": "#ffdcc5",
+                        "tertiary": "#ffb783",
+                        "on-tertiary-container": "#452000",
+                        "on-error-container": "#ffdad6",
+                        "surface-bright": "#37393e",
+                        "on-primary-container": "#0d0096",
+                        "on-tertiary-fixed-variant": "#703700",
+                        "secondary": "#7bd0ff",
+                        "background": "#111318",
+                        "primary-container": "#8083ff",
+                        "inverse-primary": "#494bd6",
+                        "primary-fixed": "#e1e0ff",
+                        "outline-variant": "#464554",
+                        "on-primary-fixed": "#07006c",
+                        "secondary-fixed": "#c4e7ff",
+                        "inverse-on-surface": "#2f3035",
+                        "error": "#ffb4ab",
+                        "on-error": "#690005",
+                        "tertiary-container": "#d97721",
+                        "on-surface": "#e2e2e8",
+                        "primary": "#c0c1ff",
+                        "secondary-fixed-dim": "#7bd0ff",
+                        "inverse-surface": "#e2e2e8",
+                        "on-secondary": "#00354a",
+                        "on-background": "#e2e2e8",
+                        "surface-container": "#1e2024",
+                        "on-secondary-fixed-variant": "#004c69",
+                        "tertiary-fixed-dim": "#ffb783",
+                        "surface-container-highest": "#333539",
+                        "surface": "#111318",
+                        "surface-container-high": "#282a2e",
+                        "surface-tint": "#c0c1ff",
+                        "on-tertiary-fixed": "#301400"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "lg": "24px",
+                        "xs": "4px",
+                        "gutter": "16px",
+                        "xl": "40px",
+                        "md": "16px",
+                        "base": "4px",
+                        "container-max": "1440px"
+                    },
+                    "fontFamily": {
+                        "mono-sm": ["JetBrains Mono"],
+                        "headline-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "mono-md": ["JetBrains Mono"],
+                        "label-caps": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "mono-sm": ["11px", { "lineHeight": "16px", "fontWeight": "450" }],
+                        "headline-sm": ["18px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "mono-md": ["13px", { "lineHeight": "20px", "fontWeight": "450" }],
+                        "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                },
+            },
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@450&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        /* Custom scrollbars for clean Kanban columns */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #333539; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #464554; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface h-screen flex overflow-hidden selection:bg-primary-container selection:text-on-primary-container">
+
+<!-- SideNavBar -->
+<aside class="bg-surface-container-low text-primary dark:text-primary-fixed-dim font-body-md text-body-md h-screen w-64 border-r border-outline-variant flex flex-col py-lg px-md shrink-0 hidden md:flex">
+    <div class="mb-lg">
+        <h1 class="font-headline-sm text-headline-sm font-bold text-on-surface">CollabOS</h1>
+        <p class="font-body-sm text-body-sm text-on-surface-variant">Engineering Team</p>
+    </div>
+    <button class="bg-primary text-on-primary font-body-md text-body-md font-bold py-sm px-md rounded-DEFAULT w-full mb-lg hover:bg-primary-fixed transition-colors duration-200 flex items-center justify-center gap-xs">
+        <span class="material-symbols-outlined text-[18px]">add</span> New Project
+    </button>
+    <nav class="flex-1 space-y-xs overflow-y-auto pr-sm">
+        <a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant hover:text-on-surface rounded-lg cursor-pointer active:scale-95 transition-colors duration-150" href="#">
+            <span class="material-symbols-outlined text-[20px]" data-icon="dashboard">dashboard</span> Overview
+        </a>
+        <a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant hover:text-on-surface rounded-lg cursor-pointer active:scale-95 transition-colors duration-150" href="#">
+            <span class="material-symbols-outlined text-[20px]" data-icon="assignment_ind">assignment_ind</span> My Work
+        </a>
+        <a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant hover:text-on-surface rounded-lg cursor-pointer active:scale-95 transition-colors duration-150" href="#">
+            <span class="material-symbols-outlined text-[20px]" data-icon="account_tree">account_tree</span> Projects
+        </a>
+        <a class="flex items-center gap-md px-md py-sm bg-secondary-container text-on-secondary-container rounded-lg cursor-pointer active:scale-95 transition-colors duration-150" href="#">
+            <span class="material-symbols-outlined text-[20px]" data-icon="view_kanban" style="font-variation-settings: 'FILL' 1;">view_kanban</span> Boards
+        </a>
+        <a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant hover:text-on-surface rounded-lg cursor-pointer active:scale-95 transition-colors duration-150" href="#">
+            <span class="material-symbols-outlined text-[20px]" data-icon="speed">speed</span> Sprints
+        </a>
+        <a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant hover:text-on-surface rounded-lg cursor-pointer active:scale-95 transition-colors duration-150" href="#">
+            <span class="material-symbols-outlined text-[20px]" data-icon="calendar_today">calendar_today</span> Calendar
+        </a>
+        <a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant hover:text-on-surface rounded-lg cursor-pointer active:scale-95 transition-colors duration-150" href="#">
+            <span class="material-symbols-outlined text-[20px]" data-icon="inbox">inbox</span> Inbox
+        </a>
+        <a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant hover:text-on-surface rounded-lg cursor-pointer active:scale-95 transition-colors duration-150" href="#">
+            <span class="material-symbols-outlined text-[20px]" data-icon="chat">chat</span> Messages
+        </a>
+        <a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant hover:text-on-surface rounded-lg cursor-pointer active:scale-95 transition-colors duration-150" href="#">
+            <span class="material-symbols-outlined text-[20px]" data-icon="folder">folder</span> Files
+        </a>
+        <a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant hover:text-on-surface rounded-lg cursor-pointer active:scale-95 transition-colors duration-150" href="#">
+            <span class="material-symbols-outlined text-[20px]" data-icon="analytics">analytics</span> Analytics
+        </a>
+        <a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant hover:text-on-surface rounded-lg cursor-pointer active:scale-95 transition-colors duration-150" href="#">
+            <span class="material-symbols-outlined text-[20px]" data-icon="smart_toy">smart_toy</span> AI Assistant
+        </a>
+    </nav>
+    <div class="mt-auto space-y-xs pt-md border-t border-outline-variant">
+        <a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant hover:text-on-surface rounded-lg cursor-pointer active:scale-95 transition-colors duration-150" href="#">
+            <span class="material-symbols-outlined text-[20px]" data-icon="settings">settings</span> Settings
+        </a>
+        <a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant hover:text-on-surface rounded-lg cursor-pointer active:scale-95 transition-colors duration-150" href="#">
+            <span class="material-symbols-outlined text-[20px]" data-icon="help">help</span> Help
+        </a>
+    </div>
+</aside>
+
+<!-- Main Content Canvas -->
+<main class="flex-1 flex flex-col h-screen overflow-hidden bg-background">
+    <!-- TopAppBar Mobile -->
+    <header class="bg-surface border-b border-outline-variant h-16 w-full flex justify-between items-center px-lg sticky top-0 z-50 md:hidden">
+        <div class="flex items-center gap-md">
+            <button class="text-on-surface-variant">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <span class="font-headline-sm text-headline-sm font-bold text-on-surface">CollabOS</span>
+        </div>
+        <div class="flex items-center gap-sm">
+            <button class="text-on-surface-variant hover:text-primary transition-colors duration-200">
+                <span class="material-symbols-outlined">search</span>
+            </button>
+            <button class="text-on-surface-variant hover:text-primary transition-colors duration-200">
+                <span class="material-symbols-outlined">notifications</span>
+            </button>
+            <button class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden border border-outline-variant">
+                <img class="w-full h-full object-cover" alt="User Avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVqiMrhTsrAjrDUs_a34OKOZgssLxSpiBGb3AWHYNA9JYedXZXXMrx0u3nkeq38RAwyS3nfP_7kU84FyGa3b_yXdHLAlSw4f6ziSfcF68980RJlXL3fvDou45B92U8ohqcsmUjX2xBivABQwN2ldMxY-YwDliXvqrDVMVdmS40z9fs3_8xIxAIcOOkx6QxqgH3CKjHWGyIie8vs7mZj2c6F2MRW0uRIB1B3fav7jVBqAznOoaQQNiWTg"/>
+            </button>
+        </div>
+    </header>
+
+    <!-- Project Header & Context -->
+    <div class="px-lg py-md border-b border-outline-variant bg-surface-container-lowest shrink-0">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-md mb-md">
+            <div>
+                <div class="flex items-center gap-sm mb-xs">
+                    <span class="bg-secondary-container/20 text-secondary-fixed border border-secondary/30 px-2 py-0.5 rounded-DEFAULT font-mono-sm text-mono-sm uppercase">PROJ-409</span>
+                    <span class="flex items-center gap-1 text-tertiary font-label-caps text-label-caps">
+                        <span class="w-2 h-2 rounded-full bg-tertiary"></span> On Track
+                    </span>
+                </div>
+                <h2 class="font-headline-lg text-headline-lg text-on-surface">CollabOS Platform</h2>
+            </div>
+            <div class="flex items-center gap-md">
+                <div class="text-right">
+                    <div class="font-label-caps text-label-caps text-on-surface-variant mb-xs">Current Sprint</div>
+                    <div class="font-body-md text-body-md font-bold flex items-center gap-xs">
+                        <span class="material-symbols-outlined text-[16px]">speed</span> Sprint 12
+                    </div>
+                </div>
+                <div class="h-8 w-px bg-outline-variant mx-sm"></div>
+                <div class="flex -space-x-2">
+                    <img class="w-8 h-8 rounded-full border-2 border-surface object-cover" alt="Member" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBBVeWjtYsVfLhlB82twGluVYTvMxto9iH_dFa-t4ID83muzV_gfNVH5_Kdgr_qG6zvABCRbLg2pZjiT3o-8fgy9Igdj-D1H_8b4RqOm5yTPvDKJu8FIfrOFBC5chjQDmdFRVwH810pKQ8dvd4eOksLUsd92dAkGosxUBUcYr_wPWzuFwA0R4tIFmY82enEtcR5JbbtkS1pD4-qhxfutMOxQuaqAkWmxkRadwo-hR_0NFtiFHywkK4nQ"/>
+                    <img class="w-8 h-8 rounded-full border-2 border-surface object-cover" alt="Member" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEtOw50hHSys7IVSYfKCzE10qcu1hMNvyVbjX3QPRhsEbPZwrdsZlcZUKx5FsrKcOzZuhCQsx5tfioMSbHV0jxDXIb7wb_29coYZqNna8mIs_aRsEbqG5B4dkis5t-ihjFmWVCbgS_K3YDdtiQwX3xAcfd4c8mXbJPv8LXj3t0SBZnZ9q5JT8RlgfttyftWHMzbJlJ-G4cAw-v_04q5orhkxUhVF1ueEBUXbFa0Gg2-sAHLTrOyYkOVQ"/>
+                    <img class="w-8 h-8 rounded-full border-2 border-surface object-cover" alt="Member" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpIUCSmsFP_h0teXVf_-QTy7A8FpHCq3KxjFBCj3dph4FKAAFOMfUU69OlsNEBPy8gWVfGEdjUfqFy4Zp23aVnyO-HBtRSGur00rhf4x2hS5uHmcUBVX3khcdY12U1qDFVcZHlYTaFP14UVrYNhQbfhUembszpLw7r9On4eTbzDJwryyz16dsJiGe6DMsDDCWseKH5qQyXhzqmPh-0pQwOlWFFe9-5RIUQXA-p51OYZDjzXqv6GSEFVw"/>
+                    <div class="w-8 h-8 rounded-full border-2 border-surface bg-surface-variant flex items-center justify-center font-mono-sm text-mono-sm text-on-surface-variant">+4</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Context Tabs -->
+        <div class="flex gap-lg border-b border-outline-variant/50 -mb-md pb-[1px] overflow-x-auto">
+            <a class="pb-sm border-b-2 border-transparent text-on-surface-variant hover:text-on-surface font-body-md text-body-md whitespace-nowrap transition-colors duration-200" href="#">Overview</a>
+            <a class="pb-sm border-b-2 border-primary text-primary font-body-md text-body-md font-bold whitespace-nowrap" href="#">Board</a>
+            <a class="pb-sm border-b-2 border-transparent text-on-surface-variant hover:text-on-surface font-body-md text-body-md whitespace-nowrap transition-colors duration-200" href="#">Timeline</a>
+            <a class="pb-sm border-b-2 border-transparent text-on-surface-variant hover:text-on-surface font-body-md text-body-md whitespace-nowrap transition-colors duration-200" href="#">Calendar</a>
+            <a class="pb-sm border-b-2 border-transparent text-on-surface-variant hover:text-on-surface font-body-md text-body-md whitespace-nowrap transition-colors duration-200" href="#">Files</a>
+            <a class="pb-sm border-b-2 border-transparent text-on-surface-variant hover:text-on-surface font-body-md text-body-md whitespace-nowrap transition-colors duration-200" href="#">Activity</a>
+        </div>
+    </div>
+
+    <!-- Board Filter Toolbar -->
+    <div class="px-lg py-sm border-b border-outline-variant/60 bg-surface-container-low flex flex-wrap items-center justify-between gap-md shrink-0">
+        <div class="flex items-center gap-sm flex-wrap">
+            <!-- Search input -->
+            <div class="relative flex items-center">
+                <span class="material-symbols-outlined text-[18px] text-on-surface-variant absolute left-2.5 pointer-events-none">search</span>
+                <input type="text" placeholder="Filter issues..." class="bg-surface-container border border-outline-variant rounded-DEFAULT pl-8 pr-md py-1 text-body-sm font-body-sm text-on-surface placeholder-on-surface-variant/60 focus:outline-none focus:border-primary w-48 lg:w-64"/>
+            </div>
+            
+            <button class="flex items-center gap-xs px-sm py-1 bg-surface-container hover:bg-surface-variant border border-outline-variant rounded-DEFAULT font-body-sm text-body-sm text-on-surface-variant transition-colors">
+                <span class="material-symbols-outlined text-[16px]">filter_list</span> Filter
+            </button>
+            <button class="flex items-center gap-xs px-sm py-1 bg-surface-container hover:bg-surface-variant border border-outline-variant rounded-DEFAULT font-body-sm text-body-sm text-on-surface-variant transition-colors">
+                <span class="material-symbols-outlined text-[16px]">person</span> Assignee
+            </button>
+            <button class="flex items-center gap-xs px-sm py-1 bg-surface-container hover:bg-surface-variant border border-outline-variant rounded-DEFAULT font-body-sm text-body-sm text-on-surface-variant transition-colors">
+                <span class="material-symbols-outlined text-[16px]">label</span> Epic
+            </button>
+        </div>
+
+        <div class="flex items-center gap-sm">
+            <span class="font-mono-sm text-mono-sm text-on-surface-variant">Group by: <strong>Status</strong></span>
+            <button class="bg-primary text-on-primary font-body-sm text-body-sm font-bold px-sm py-1 rounded-DEFAULT hover:bg-primary-fixed transition-colors flex items-center gap-xs">
+                <span class="material-symbols-outlined text-[16px]">add</span> Add Card
+            </button>
+        </div>
+    </div>
+
+    <!-- Kanban Canvas Area -->
+    <div class="flex-1 overflow-x-auto overflow-y-hidden p-lg">
+        <div class="h-full flex gap-md min-w-max">
+
+            <!-- Column 1: Backlog / To Do -->
+            <div class="w-80 flex flex-col h-full bg-surface-container-lowest border border-outline-variant/60 rounded-lg p-sm">
+                <!-- Column Header -->
+                <div class="flex items-center justify-between px-xs py-sm mb-xs">
+                    <div class="flex items-center gap-xs">
+                        <span class="w-2.5 h-2.5 rounded-full bg-outline"></span>
+                        <h4 class="font-headline-sm text-body-md font-bold text-on-surface">To Do</h4>
+                        <span class="bg-surface-variant text-on-surface-variant px-1.5 py-0.5 rounded-full font-mono-sm text-mono-sm">4</span>
+                    </div>
+                    <button class="text-on-surface-variant hover:text-on-surface">
+                        <span class="material-symbols-outlined text-[20px]">more_horiz</span>
+                    </button>
+                </div>
+
+                <!-- Cards Stream -->
+                <div class="flex-1 overflow-y-auto space-y-sm pr-xs">
+                    <!-- Card Item 1 -->
+                    <div class="bg-surface-container hover:bg-surface-container-high border border-outline-variant/50 hover:border-primary/50 rounded-lg p-md cursor-pointer transition-all duration-150 space-y-sm group">
+                        <div class="flex justify-between items-start">
+                            <span class="bg-error-container/40 text-error border border-error/30 px-1.5 py-0.5 rounded font-mono-sm text-mono-sm uppercase">URGENT</span>
+                            <span class="font-mono-sm text-mono-sm text-on-surface-variant">PROJ-415</span>
+                        </div>
+                        <h5 class="font-body-md text-body-md font-semibold text-on-surface group-hover:text-primary transition-colors">WebSocket Gateway Real-time Sync</h5>
+                        <p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Ensure delta state synchronizes automatically across active browser sessions.</p>
+                        <div class="flex items-center justify-between pt-xs border-t border-outline-variant/30 text-on-surface-variant">
+                            <div class="flex items-center gap-xs font-mono-sm text-mono-sm">
+                                <span class="material-symbols-outlined text-[16px]">chat_bubble</span> 4
+                            </div>
+                            <div class="flex items-center gap-xs">
+                                <span class="bg-surface-variant px-1.5 py-0.5 rounded font-mono-sm text-mono-sm">8 pts</span>
+                                <img class="w-6 h-6 rounded-full border border-surface" alt="Assignee" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBBVeWjtYsVfLhlB82twGluVYTvMxto9iH_dFa-t4ID83muzV_gfNVH5_Kdgr_qG6zvABCRbLg2pZjiT3o-8fgy9Igdj-D1H_8b4RqOm5yTPvDKJu8FIfrOFBC5chjQDmdFRVwH810pKQ8dvd4eOksLUsd92dAkGosxUBUcYr_wPWzuFwA0R4tIFmY82enEtcR5JbbtkS1pD4-qhxfutMOxQuaqAkWmxkRadwo-hR_0NFtiFHywkK4nQ"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card Item 2 -->
+                    <div class="bg-surface-container hover:bg-surface-container-high border border-outline-variant/50 hover:border-primary/50 rounded-lg p-md cursor-pointer transition-all duration-150 space-y-sm group">
+                        <div class="flex justify-between items-start">
+                            <span class="bg-secondary-container/30 text-secondary border border-secondary/30 px-1.5 py-0.5 rounded font-mono-sm text-mono-sm uppercase">MOBILE</span>
+                            <span class="font-mono-sm text-mono-sm text-on-surface-variant">PROJ-418</span>
+                        </div>
+                        <h5 class="font-body-md text-body-md font-semibold text-on-surface group-hover:text-primary transition-colors">Mobile Navigation Drawer Gestures</h5>
+                        <div class="flex items-center justify-between pt-xs border-t border-outline-variant/30 text-on-surface-variant">
+                            <div class="flex items-center gap-xs font-mono-sm text-mono-sm">
+                                <span class="material-symbols-outlined text-[16px]">attach_file</span> 2
+                            </div>
+                            <div class="flex items-center gap-xs">
+                                <span class="bg-surface-variant px-1.5 py-0.5 rounded font-mono-sm text-mono-sm">3 pts</span>
+                                <img class="w-6 h-6 rounded-full border border-surface" alt="Assignee" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEtOw50hHSys7IVSYfKCzE10qcu1hMNvyVbjX3QPRhsEbPZwrdsZlcZUKx5FsrKcOzZuhCQsx5tfioMSbHV0jxDXIb7wb_29coYZqNna8mIs_aRsEbqG5B4dkis5t-ihjFmWVCbgS_K3YDdtiQwX3xAcfd4c8mXbJPv8LXj3t0SBZnZ9q5JT8RlgfttyftWHMzbJlJ-G4cAw-v_04q5orhkxUhVF1ueEBUXbFa0Gg2-sAHLTrOyYkOVQ"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column 2: In Progress -->
+            <div class="w-80 flex flex-col h-full bg-surface-container-lowest border border-outline-variant/60 rounded-lg p-sm">
+                <!-- Column Header -->
+                <div class="flex items-center justify-between px-xs py-sm mb-xs">
+                    <div class="flex items-center gap-xs">
+                        <span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+                        <h4 class="font-headline-sm text-body-md font-bold text-on-surface">In Progress</h4>
+                        <span class="bg-surface-variant text-on-surface-variant px-1.5 py-0.5 rounded-full font-mono-sm text-mono-sm">3</span>
+                    </div>
+                    <button class="text-on-surface-variant hover:text-on-surface">
+                        <span class="material-symbols-outlined text-[20px]">more_horiz</span>
+                    </button>
+                </div>
+
+                <!-- Cards Stream -->
+                <div class="flex-1 overflow-y-auto space-y-sm pr-xs">
+                    <!-- Card Item 3 -->
+                    <div class="bg-surface-container hover:bg-surface-container-high border border-outline-variant/50 hover:border-primary/50 rounded-lg p-md cursor-pointer transition-all duration-150 space-y-sm group">
+                        <div class="flex justify-between items-start">
+                            <span class="bg-tertiary-container/30 text-tertiary border border-tertiary/30 px-1.5 py-0.5 rounded font-mono-sm text-mono-sm uppercase">DESIGN SYSTEM</span>
+                            <span class="font-mono-sm text-mono-sm text-on-surface-variant">PROJ-409</span>
+                        </div>
+                        <h5 class="font-body-md text-body-md font-semibold text-on-surface group-hover:text-primary transition-colors">Material System Color Token Migration</h5>
+                        
+                        <!-- Progress bar inside card -->
+                        <div class="space-y-xs">
+                            <div class="flex justify-between font-mono-sm text-mono-sm text-on-surface-variant">
+                                <span>Subtasks</span>
+                                <span>3/4</span>
+                            </div>
+                            <div class="w-full bg-surface-variant h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-secondary h-full" style="width: 75%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-xs border-t border-outline-variant/30 text-on-surface-variant">
+                            <div class="flex items-center gap-xs font-mono-sm text-mono-sm">
+                                <span class="material-symbols-outlined text-[16px]">chat_bubble</span> 12
+                            </div>
+                            <div class="flex items-center gap-xs">
+                                <span class="bg-surface-variant px-1.5 py-0.5 rounded font-mono-sm text-mono-sm">5 pts</span>
+                                <img class="w-6 h-6 rounded-full border border-surface" alt="Assignee" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpIUCSmsFP_h0teXVf_-QTy7A8FpHCq3KxjFBCj3dph4FKAAFOMfUU69OlsNEBPy8gWVfGEdjUfqFy4Zp23aVnyO-HBtRSGur00rhf4x2hS5uHmcUBVX3khcdY12U1qDFVcZHlYTaFP14UVrYNhQbfhUembszpLw7r9On4eTbzDJwryyz16dsJiGe6DMsDDCWseKH5qQyXhzqmPh-0pQwOlWFFe9-5RIUQXA-p51OYZDjzXqv6GSEFVw"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card Item 4 -->
+                    <div class="bg-surface-container hover:bg-surface-container-high border border-outline-variant/50 hover:border-primary/50 rounded-lg p-md cursor-pointer transition-all duration-150 space-y-sm group">
+                        <div class="flex justify-between items-start">
+                            <span class="bg-primary-container/30 text-primary border border-primary/30 px-1.5 py-0.5 rounded font-mono-sm text-mono-sm uppercase">SECURITY</span>
+                            <span class="font-mono-sm text-mono-sm text-on-surface-variant">PROJ-411</span>
+                        </div>
+                        <h5 class="font-body-md text-body-md font-semibold text-on-surface group-hover:text-primary transition-colors">OAuth2 Refresh Token Strategy</h5>
+                        <p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Implement sliding refresh window for secure silent sessions.</p>
+                        <div class="flex items-center justify-between pt-xs border-t border-outline-variant/30 text-on-surface-variant">
+                            <div class="flex items-center gap-xs font-mono-sm text-mono-sm text-tertiary">
+                                <span class="material-symbols-outlined text-[16px]">schedule</span> Due Tomorrow
+                            </div>
+                            <div class="flex items-center gap-xs">
+                                <span class="bg-surface-variant px-1.5 py-0.5 rounded font-mono-sm text-mono-sm">5 pts</span>
+                                <img class="w-6 h-6 rounded-full border border-surface" alt="Assignee" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBBVeWjtYsVfLhlB82twGluVYTvMxto9iH_dFa-t4ID83muzV_gfNVH5_Kdgr_qG6zvABCRbLg2pZjiT3o-8fgy9Igdj-D1H_8b4RqOm5yTPvDKJu8FIfrOFBC5chjQDmdFRVwH810pKQ8dvd4eOksLUsd92dAkGosxUBUcYr_wPWzuFwA0R4tIFmY82enEtcR5JbbtkS1pD4-qhxfutMOxQuaqAkWmxkRadwo-hR_0NFtiFHywkK4nQ"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column 3: In Review -->
+            <div class="w-80 flex flex-col h-full bg-surface-container-lowest border border-outline-variant/60 rounded-lg p-sm">
+                <!-- Column Header -->
+                <div class="flex items-center justify-between px-xs py-sm mb-xs">
+                    <div class="flex items-center gap-xs">
+                        <span class="w-2.5 h-2.5 rounded-full bg-tertiary"></span>
+                        <h4 class="font-headline-sm text-body-md font-bold text-on-surface">In Review</h4>
+                        <span class="bg-surface-variant text-on-surface-variant px-1.5 py-0.5 rounded-full font-mono-sm text-mono-sm">2</span>
+                    </div>
+                    <button class="text-on-surface-variant hover:text-on-surface">
+                        <span class="material-symbols-outlined text-[20px]">more_horiz</span>
+                    </button>
+                </div>
+
+                <!-- Cards Stream -->
+                <div class="flex-1 overflow-y-auto space-y-sm pr-xs">
+                    <!-- Card Item 5 -->
+                    <div class="bg-surface-container hover:bg-surface-container-high border border-outline-variant/50 hover:border-primary/50 rounded-lg p-md cursor-pointer transition-all duration-150 space-y-sm group">
+                        <div class="flex justify-between items-start">
+                            <span class="bg-secondary-container/20 text-secondary-fixed border border-secondary/30 px-1.5 py-0.5 rounded font-mono-sm text-mono-sm uppercase">PERF</span>
+                            <span class="font-mono-sm text-mono-sm text-on-surface-variant">PROJ-407</span>
+                        </div>
+                        <h5 class="font-body-md text-body-md font-semibold text-on-surface group-hover:text-primary transition-colors">JetBrains Mono Font Load Optimization</h5>
+                        <div class="flex items-center gap-xs text-secondary font-mono-sm text-mono-sm">
+                            <span class="material-symbols-outlined text-[16px]">commit</span> PR #104 Linked
+                        </div>
+                        <div class="flex items-center justify-between pt-xs border-t border-outline-variant/30 text-on-surface-variant">
+                            <div class="flex items-center gap-xs font-mono-sm text-mono-sm">
+                                <span class="material-symbols-outlined text-[16px]">chat_bubble</span> 8
+                            </div>
+                            <div class="flex items-center gap-xs">
+                                <span class="bg-surface-variant px-1.5 py-0.5 rounded font-mono-sm text-mono-sm">2 pts</span>
+                                <img class="w-6 h-6 rounded-full border border-surface" alt="Assignee" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEtOw50hHSys7IVSYfKCzE10qcu1hMNvyVbjX3QPRhsEbPZwrdsZlcZUKx5FsrKcOzZuhCQsx5tfioMSbHV0jxDXIb7wb_29coYZqNna8mIs_aRsEbqG5B4dkis5t-ihjFmWVCbgS_K3YDdtiQwX3xAcfd4c8mXbJPv8LXj3t0SBZnZ9q5JT8RlgfttyftWHMzbJlJ-G4cAw-v_04q5orhkxUhVF1ueEBUXbFa0Gg2-sAHLTrOyYkOVQ"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column 4: Done -->
+            <div class="w-80 flex flex-col h-full bg-surface-container-lowest border border-outline-variant/60 rounded-lg p-sm">
+                <!-- Column Header -->
+                <div class="flex items-center justify-between px-xs py-sm mb-xs">
+                    <div class="flex items-center gap-xs">
+                        <span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+                        <h4 class="font-headline-sm text-body-md font-bold text-on-surface">Done</h4>
+                        <span class="bg-surface-variant text-on-surface-variant px-1.5 py-0.5 rounded-full font-mono-sm text-mono-sm">5</span>
+                    </div>
+                    <button class="text-on-surface-variant hover:text-on-surface">
+                        <span class="material-symbols-outlined text-[20px]">more_horiz</span>
+                    </button>
+                </div>
+
+                <!-- Cards Stream -->
+                <div class="flex-1 overflow-y-auto space-y-sm pr-xs">
+                    <!-- Card Item 6 -->
+                    <div class="bg-surface-container/60 opacity-80 hover:opacity-100 border border-outline-variant/30 rounded-lg p-md cursor-pointer transition-all duration-150 space-y-sm group">
+                        <div class="flex justify-between items-start">
+                            <span class="bg-surface-variant text-on-surface-variant border border-outline-variant/50 px-1.5 py-0.5 rounded font-mono-sm text-mono-sm uppercase line-through">COMPLETED</span>
+                            <span class="font-mono-sm text-mono-sm text-on-surface-variant">PROJ-401</span>
+                        </div>
+                        <h5 class="font-body-md text-body-md font-semibold text-on-surface line-through text-on-surface-variant">Initial CollabOS Dark Surface Container Scheme</h5>
+                        <div class="flex items-center justify-between pt-xs border-t border-outline-variant/30 text-on-surface-variant">
+                            <div class="flex items-center gap-xs font-mono-sm text-mono-sm text-primary">
+                                <span class="material-symbols-outlined text-[16px]">check_circle</span> Closed
+                            </div>
+                            <div class="flex items-center gap-xs">
+                                <span class="bg-surface-variant px-1.5 py-0.5 rounded font-mono-sm text-mono-sm">5 pts</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+</body>
+</html>
