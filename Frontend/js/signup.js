@@ -33,6 +33,10 @@ signupForm.addEventListener("submit", function(e){
     const fullName = document.getElementById("fullName").value.trim();
     const email = document.getElementById("email").value.trim();
     const password = passwordInput.value.trim();
+    const role = document.querySelector('input[name="role"]:checked').value;
+    const institution = document.getElementById("institution").value.trim();
+    const department = document.getElementById("department").value.trim();
+    const phone = document.getElementById("phone").value.trim();
     const terms = document.getElementById("terms").checked;
 
     if(fullName === ""){
@@ -65,9 +69,10 @@ signupForm.addEventListener("submit", function(e){
         return;
     }
 
-    const newUser = {fullName,email,password};
+    const newUser = {fullName,email,password,role,institution,department,phone,bio:"",createdAt:new Date().toISOString()};
     users.push(newUser);
     localStorage.setItem("users", JSON.stringify(users));
+    localStorage.setItem("loggedInUser", JSON.stringify(newUser));
 
     signupBtn.disabled = true;
     signupBtn.innerHTML = `
@@ -99,7 +104,7 @@ signupForm.addEventListener("submit", function(e){
         `;
         signupBtn.classList.remove("bg-primary");
         signupBtn.classList.add("bg-green-500","text-white");
-        setTimeout(()=>{window.location.href="login.html";},1000);
+        setTimeout(()=>{window.location.href="dashboard.html";},1000);
     },1500);
 });
 

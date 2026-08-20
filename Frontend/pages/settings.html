@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CollabOS - Settings</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <style>body { font-family: Inter, sans-serif; }</style>
+</head>
+<body class="min-h-screen bg-[#101114] text-white">
+    <main class="mx-auto flex min-h-screen w-full max-w-3xl flex-col justify-center px-6 py-12">
+        <a href="dashboard.html" class="mb-10 inline-flex w-fit items-center gap-2 text-sm text-[#b9b7ff] transition hover:text-white">
+            <span class="material-symbols-outlined text-lg">arrow_back</span>
+            Back to dashboard
+        </a>
+
+        <section class="overflow-hidden rounded-xl border border-[#464751] bg-[#1d1e22] shadow-2xl shadow-black/20">
+            <div class="border-b border-[#464751] px-6 py-6 sm:px-8">
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#54d7ff]">Account</p>
+                <h1 class="mt-2 text-3xl font-semibold">Settings</h1>
+                <p class="mt-2 text-[#bcbcc6]">View your signed-in account details.</p>
+            </div>
+
+            <div class="px-6 py-7 sm:px-8">
+                <div class="flex items-center gap-4 border-b border-[#42434c] pb-7">
+                    <div id="avatarInitial" class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#aaa7ff] text-xl font-semibold text-[#17175a]"></div>
+                    <div class="min-w-0">
+                        <p id="userName" class="truncate text-xl font-semibold"></p>
+                        <p id="userEmail" class="mt-1 truncate text-sm text-[#bcbcc6]"></p>
+                    </div>
+                </div>
+
+                <form id="profileForm" class="mt-7 space-y-5">
+                    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                        <div><label for="profileName" class="mb-2 block text-xs font-semibold uppercase tracking-widest text-[#bcbcc6]">Full name</label><input id="profileName" required class="w-full rounded-lg border border-[#464751] bg-[#15161a] px-4 py-3 outline-none focus:border-[#aaa7ff]"></div>
+                        <div><label for="profileEmail" class="mb-2 block text-xs font-semibold uppercase tracking-widest text-[#bcbcc6]">Email address</label><input id="profileEmail" required type="email" class="w-full rounded-lg border border-[#464751] bg-[#15161a] px-4 py-3 outline-none focus:border-[#aaa7ff]"></div>
+                        <div><label for="profileInstitution" class="mb-2 block text-xs font-semibold uppercase tracking-widest text-[#bcbcc6]">Institution</label><input id="profileInstitution" class="w-full rounded-lg border border-[#464751] bg-[#15161a] px-4 py-3 outline-none focus:border-[#aaa7ff]"></div>
+                        <div><label for="profileDepartment" class="mb-2 block text-xs font-semibold uppercase tracking-widest text-[#bcbcc6]">Department / class</label><input id="profileDepartment" class="w-full rounded-lg border border-[#464751] bg-[#15161a] px-4 py-3 outline-none focus:border-[#aaa7ff]"></div>
+                    </div>
+                    <div><label for="profilePhone" class="mb-2 block text-xs font-semibold uppercase tracking-widest text-[#bcbcc6]">Phone number</label><input id="profilePhone" type="tel" class="w-full rounded-lg border border-[#464751] bg-[#15161a] px-4 py-3 outline-none focus:border-[#aaa7ff]"></div>
+                    <div><label for="profileBio" class="mb-2 block text-xs font-semibold uppercase tracking-widest text-[#bcbcc6]">Bio</label><textarea id="profileBio" maxlength="250" class="min-h-24 w-full rounded-lg border border-[#464751] bg-[#15161a] px-4 py-3 outline-none focus:border-[#aaa7ff]" placeholder="A short introduction about yourself"></textarea></div>
+                    <div class="flex items-center justify-between gap-4"><p id="profileMessage" class="text-sm text-emerald-300"></p><button class="rounded-lg bg-[#aaa7ff] px-5 py-3 text-sm font-semibold text-[#17175a] hover:bg-[#c0beff]">Save profile</button></div>
+                </form>
+
+                <div class="mt-8 flex flex-col gap-4 border-t border-[#42434c] pt-7 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <h2 class="font-semibold">Sign out</h2>
+                        <p class="mt-1 text-sm text-[#bcbcc6]">You can sign back in at any time.</p>
+                    </div>
+                    <button id="logoutBtn" type="button" class="inline-flex items-center justify-center gap-2 rounded-lg border border-red-400/50 bg-red-400/10 px-5 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-400 hover:text-[#1b1112]">
+                        <span class="material-symbols-outlined text-lg">logout</span>
+                        Log out
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="../js/settings.js"></script>
+</body>
+</html>

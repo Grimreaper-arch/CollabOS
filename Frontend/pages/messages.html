@@ -63,13 +63,13 @@
     </div>
   </div>
 
-  <button class="w-full bg-primary text-on-primary font-bold py-2 rounded-lg mb-6 hover:opacity-90 transition-opacity flex items-center justify-center gap-1">
-    <span class="material-symbols-outlined text-[18px]">add</span> New Project
-  </button>
+  <a href="dashboard.html" class="w-full bg-primary text-on-primary font-bold py-2 rounded-lg mb-6 hover:opacity-90 transition-opacity flex items-center justify-center gap-1">
+    <span class="material-symbols-outlined text-[18px]">dashboard</span> Dashboard
+  </a>
 
   <!-- Existing nav items -->
   <div class="space-y-1">
-    <a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-variant hover:text-on-surface rounded-lg transition-colors" href="#">
+    <a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-variant hover:text-on-surface rounded-lg transition-colors" href="dashboard.html">
       <span class="material-symbols-outlined text-[20px]">dashboard</span> Overview
     </a>
     <a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-variant hover:text-on-surface rounded-lg transition-colors" href="#">
@@ -83,12 +83,11 @@
     </a>
   </div>
 
-  <!-- ⬇⬇ EMPTY SPACE — drop your other page links in here ⬇⬇ -->
-  <div id="nav-placeholder" class="flex-1 my-4 border border-dashed border-outline-variant rounded-lg"></div>
-  <!-- ⬆⬆ EMPTY SPACE ⬆⬆ -->
+  <div class="flex-1 my-4"></div>
+  <a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-variant hover:text-on-surface rounded-lg transition-colors" href="analytics.html"><span class="material-symbols-outlined text-[20px]">analytics</span> Analytics</a>
 
   <div class="pt-4 border-t border-outline-variant space-y-1">
-    <a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-variant hover:text-on-surface rounded-lg transition-colors" href="#">
+    <a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-variant hover:text-on-surface rounded-lg transition-colors" href="settings.html">
       <span class="material-symbols-outlined text-[20px]">settings</span> Settings
     </a>
   </div>
@@ -140,10 +139,12 @@
 
 <script>
   // ---------- Data ----------
+  const activeUser = JSON.parse(localStorage.getItem("loggedInUser") || "null");
+  if (!activeUser?.email) window.location.replace("login.html");
   const CHANNELS = ["engineering", "frontend", "backend", "random"];
-  const DMS = ["Piyush", "Pulkit", "Parv", "Anjali"];
+  const DMS = (JSON.parse(localStorage.getItem("users") || "[]")).filter(user => user.email !== activeUser?.email).map(user => user.fullName);
   const STORAGE_KEY = "collabos_messages_v1";
-  const ME = "You";
+  const ME = activeUser?.fullName || "You";
 
   const SEED = {
     "engineering": [
