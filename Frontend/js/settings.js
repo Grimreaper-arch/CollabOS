@@ -1,9 +1,13 @@
 function readUser() {
-    try { return JSON.parse(localStorage.getItem("loggedInUser")); } catch { return null; }
+    try { 
+        return JSON.parse(localStorage.getItem("loggedInUser")); 
+    } catch { return null; }
 }
 
 let user = readUser();
-if (!user?.fullName || !user?.email) { window.location.replace("login.html"); throw new Error("No active session"); }
+if (!user?.fullName || !user?.email) { window.location.replace("login.html"); 
+    throw new Error("No active session"); 
+}
 
 const fields = {
     fullName: document.getElementById("profileName"), email: document.getElementById("profileEmail"),
@@ -22,14 +26,18 @@ document.getElementById("profileForm").addEventListener("submit", (event) => {
     event.preventDefault();
     const updated = Object.fromEntries(Object.entries(fields).map(([key, field]) => [key, field.value.trim()]));
     let users;
-    try { users = JSON.parse(localStorage.getItem("users")) || []; } catch { users = []; }
+    try { 
+        users = JSON.parse(localStorage.getItem("users")) || []; 
+    } catch { users = []; }
     const duplicate = users.some((account) => account.email.toLowerCase() === updated.email.toLowerCase() && account.email !== user.email);
-    if (duplicate) { document.getElementById("profileMessage").textContent = "That email is already in use."; document.getElementById("profileMessage").className = "text-sm text-red-300"; return; }
+    if (duplicate) { document.getElementById("profileMessage").textContent = "That email is already in use."; 
+        document.getElementById("profileMessage").className = "text-sm text-red-300"; return; 
+    }
     const previousEmail = user.email;
     user = { ...user, ...updated };
     users = users.map((account) => account.email === previousEmail ? { ...account, ...user } : account);
     localStorage.setItem("users", JSON.stringify(users));
-    // Keep names and email references in the local collaboration data in sync.
+
     if (user.fullName) {
         const projects = JSON.parse(localStorage.getItem("projects") || "[]").map((project) => ({
             ...project,
@@ -55,5 +63,7 @@ document.getElementById("profileForm").addEventListener("submit", (event) => {
     showProfile();
 });
 
-document.getElementById("logoutBtn").addEventListener("click", () => { localStorage.removeItem("loggedInUser"); window.location.replace("login.html"); });
+document.getElementById("logoutBtn").addEventListener("click", () => { localStorage.removeItem("loggedInUser"); 
+    window.location.replace("login.html"); 
+});
 showProfile();

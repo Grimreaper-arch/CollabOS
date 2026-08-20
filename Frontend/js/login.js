@@ -28,7 +28,6 @@ loginForm.addEventListener("submit", function(e){
         return;
     }
 
-    // Accounts created before roles were added become student accounts by default.
     if (!user.role) {
         user.role = "student";
         localStorage.setItem("users", JSON.stringify(users));

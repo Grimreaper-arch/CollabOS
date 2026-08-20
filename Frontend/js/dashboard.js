@@ -1,28 +1,47 @@
 const $ = (selector) => document.querySelector(selector);
+
 const keys = { users: "users", projects: "projects", tasks: "tasks", session: "loggedInUser", notifications: "notifications", activities: "activities", comments: "taskComments" };
+
 const read = (key, fallback = []) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } };
+
 const write = (key, value) => localStorage.setItem(key, JSON.stringify(value));
+
 const id = (prefix) => `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
 const escapeHtml = (value = "") => { const node = document.createElement("div"); node.textContent = value; return node.innerHTML; };
+
 const formatDate = (value) => value ? new Date(`${value}T00:00:00`).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "No due date";
+
 const empty = (text) => `<p class="rounded-md border border-dashed border-[#464751] p-4 text-sm text-[#bcbcc6]">${text}</p>`;
 
 const currentUser = read(keys.session, null);
+
 if (!currentUser?.email || !currentUser?.role) { window.location.replace("login.html"); throw new Error("No active session"); }
+
 const isTeacher = currentUser.role === "teacher";
+
 const projectDialog = $("#projectDialog");
+
 const notificationDialog = $("#notificationDialog");
+
 const getProjects = () => read(keys.projects).map((project) => ({ ...project, members: project.members || [], invites: project.invites || [] }));
+
 const getTasks = () => read(keys.tasks);
+
 const ownedProjects = () => getProjects().filter((project) => project.teacherEmail === currentUser.email);
+
 const joinedProjects = () => getProjects().filter((project) => project.members.includes(currentUser.email));
+
 const visibleProjects = () => isTeacher ? ownedProjects() : joinedProjects();
+
 const projectById = (projectId) => getProjects().find((project) => project.id === projectId);
+
 const canAccessTask = (task) => task.assigneeEmail === currentUser.email || projectById(task.projectId)?.teacherEmail === currentUser.email;
 
 function addActivity(projectId, text) {
     const events = read(keys.activities);
-    events.unshift({ id: id("activity"), projectId, text, createdAt: new Date().toISOString() });
+    events.unshift({ id: id("activity"), projectId, text, createdAt: 
+    new Date().toISOString() });
     write(keys.activities, events.slice(0, 100));
 }
 function notify(recipientEmail, text) {
@@ -31,7 +50,8 @@ function notify(recipientEmail, text) {
     write(keys.notifications, notifications.slice(0, 100));
 }
 function showMessage(selector, text, error = false) {
-    const element = $(selector); element.textContent = text; element.className = `text-sm ${error ? "text-red-300" : "text-emerald-300"}`;
+    const element = $(selector); element.textContent = text; 
+    element.className = `text-sm ${error ? "text-red-300" : "text-emerald-300"}`;
 }
 function fillSelect(select, options, label) {
     select.innerHTML = options.length ? `<option value="" disabled selected>${label}</option>${options}` : `<option value="" selected>No projects available</option>`;
@@ -106,39 +126,100 @@ function render() {
 if (isTeacher) { $("#teacherControls").classList.replace("hidden", "grid"); $("#newProjectButton").classList.replace("hidden", "inline-flex"); } else $("#studentInvites").classList.remove("hidden");
 $("#newProjectButton").addEventListener("click", () => projectDialog.showModal());
 $("[data-close-dialog]").addEventListener("click", () => projectDialog.close());
-$("#notificationButton").addEventListener("click", () => { const notifications = read(keys.notifications); notifications.forEach((item) => { if (item.recipientEmail === currentUser.email) item.read = true; }); write(keys.notifications, notifications); renderNotifications(); notificationDialog.showModal(); });
+$("#notificationButton").addEventListener("click", () => { const notifications = read(keys.notifications); 
+notifications.forEach((item) => { if (item.recipientEmail === currentUser.email) item.read = true; }); 
+write(keys.notifications, notifications); 
+renderNotifications(); notificationDialog.showModal(); });
 $("[data-close-notifications]").addEventListener("click", () => notificationDialog.close());
 
 $("#projectForm").addEventListener("submit", (event) => {
     event.preventDefault(); if (!isTeacher) return; const name = $("#projectName").value.trim(); if (!name) return;
-    const projects = getProjects(); const project = { id: id("project"), name, description: $("#projectDescription").value.trim(), dueDate: $("#projectDueDate").value, teacherEmail: currentUser.email, teacherName: currentUser.fullName, members: [], invites: [], createdAt: new Date().toISOString() };
-    projects.push(project); write(keys.projects, projects); addActivity(project.id, `${currentUser.fullName} created ${project.name}.`); event.target.reset(); projectDialog.close(); render();
+    const projects = getProjects(); 
+    const project = { id: id("project"), name, description: $("#projectDescription").value.trim(), dueDate: $("#projectDueDate").value, teacherEmail: currentUser.email, teacherName: currentUser.fullName, members: [], invites: [], createdAt: new Date().toISOString() };
+    projects.push(project); 
+    write(keys.projects, projects); 
+    addActivity(project.id, `${currentUser.fullName} created ${project.name}.`); 
+    event.target.reset(); 
+    projectDialog.close(); 
+    render();
 });
 $("#inviteForm").addEventListener("submit", (event) => {
-    event.preventDefault(); if (!isTeacher) return; const projectId = $("#inviteProject").value; const project = getProjects().find((item) => item.id === projectId && item.teacherEmail === currentUser.email);
+    event.preventDefault(); if (!isTeacher) return; 
+    const projectId = $("#inviteProject").value; 
+    const project = getProjects().find((item) => item.id === projectId && item.teacherEmail === currentUser.email);
     const emails = [...new Set($("#studentEmails").value.split(/[\s,;]+/).map((email) => email.trim().toLowerCase()).filter(Boolean))];
-    const users = read(keys.users); if (!project || !emails.length) return showMessage("#inviteMessage", "Choose a project and enter student emails.", true);
+    const users = read(keys.users); 
+    if (!project || !emails.length) return showMessage("#inviteMessage", "Choose a project and enter student emails.", true);
     const valid = users.filter((user) => emails.includes(user.email.toLowerCase()) && user.role === "student" && !project.members.includes(user.email) && !project.invites.includes(user.email));
-    const projects = getProjects(); const savedProject = projects.find((item) => item.id === project.id); valid.forEach((student) => { savedProject.invites.push(student.email); notify(student.email, `${currentUser.fullName} invited you to join ${savedProject.name}.`); });
-    write(keys.projects, projects); if (valid.length) addActivity(project.id, `${currentUser.fullName} invited ${valid.length} student${valid.length === 1 ? "" : "s"}.`); event.target.reset(); showMessage("#inviteMessage", `${valid.length} invitation${valid.length === 1 ? "" : "s"} sent. ${emails.length - valid.length} skipped.`); render();
+    const projects = getProjects(); 
+    const savedProject = projects.find((item) => item.id === project.id); 
+    valid.forEach((student) => { 
+        savedProject.invites.push(student.email); 
+        notify(student.email, `${currentUser.fullName} invited you to join ${savedProject.name}.`); 
+    });
+    write(keys.projects, projects); 
+    if (valid.length) addActivity(project.id, `${currentUser.fullName} invited ${valid.length} student${valid.length === 1 ? "" : "s"}.`); 
+    event.target.reset(); showMessage("#inviteMessage", `${valid.length} invitation${valid.length === 1 ? "" : "s"} sent. ${emails.length - valid.length} skipped.`); 
+    render();
 });
 $("#taskProject").addEventListener("change", renderAssigneeOptions);
 $("#assignAll").addEventListener("change", (event) => document.querySelectorAll('input[name="taskAssignee"]').forEach((box) => box.checked = event.target.checked));
 $("#taskForm").addEventListener("submit", (event) => {
-    event.preventDefault(); if (!isTeacher) return; const projectId = $("#taskProject").value, title = $("#taskTitle").value.trim(); const project = ownedProjects().find((item) => item.id === projectId);
-    const selected = [...document.querySelectorAll('input[name="taskAssignee"]:checked')].map((box) => box.value); const users = read(keys.users); const students = users.filter((user) => selected.includes(user.email) && project?.members.includes(user.email) && user.role === "student");
+    event.preventDefault(); 
+    if (!isTeacher) return; const projectId = $("#taskProject").value, title = $("#taskTitle").value.trim(); 
+    const project = ownedProjects().find((item) => item.id === projectId);
+    const selected = [...document.querySelectorAll('input[name="taskAssignee"]:checked')].map((box) => box.value); 
+    const users = read(keys.users); 
+    const students = users.filter((user) => selected.includes(user.email) && project?.members.includes(user.email) && user.role === "student");
     if (!project || !title || !students.length) return showMessage("#taskMessage", "Choose a project, at least one joined student, and a task title.", true);
-    const tasks = getTasks(); students.forEach((student) => { tasks.push({ id: id("task"), title, projectId, assigneeEmail: student.email, assigneeName: student.fullName, assignedByEmail: currentUser.email, status: "pending", priority: $("#taskPriority").value, dueDate: $("#taskDueDate").value, completedAt: null }); notify(student.email, `${currentUser.fullName} assigned you “${title}” in ${project.name}.`); });
-    write(keys.tasks, tasks); addActivity(projectId, `${currentUser.fullName} assigned “${title}” to ${students.length} student${students.length === 1 ? "" : "s"}.`); event.target.reset(); showMessage("#taskMessage", `Task assigned to ${students.length} student${students.length === 1 ? "" : "s"}.`); render();
+    const tasks = getTasks(); 
+    students.forEach((student) => { tasks.push({ id: id("task"), title, projectId, assigneeEmail: student.email, assigneeName: student.fullName, assignedByEmail: currentUser.email, status: "pending", priority: $("#taskPriority").value, dueDate: $("#taskDueDate").value, completedAt: null }); 
+    notify(student.email, `${currentUser.fullName} assigned you “${title}” in ${project.name}.`); 
+});
+    write(keys.tasks, tasks); addActivity(projectId, `${currentUser.fullName} assigned “${title}” to ${students.length} student${students.length === 1 ? "" : "s"}.`); 
+    event.target.reset(); 
+    showMessage("#taskMessage", `Task assigned to ${students.length} student${students.length === 1 ? "" : "s"}.`); 
+    render();
 });
 
 document.addEventListener("click", (event) => {
     const join = event.target.closest("[data-join-project]"), complete = event.target.closest("[data-complete-task]");
-    if (join && !isTeacher) { const projects = getProjects(); const project = projects.find((item) => item.id === join.dataset.joinProject && item.invites.includes(currentUser.email)); if (!project) return; project.invites = project.invites.filter((email) => email !== currentUser.email); project.members.push(currentUser.email); write(keys.projects, projects); notify(project.teacherEmail, `${currentUser.fullName} joined ${project.name}.`); addActivity(project.id, `${currentUser.fullName} joined the project.`); render(); }
-    if (complete && !isTeacher) { const tasks = getTasks(); const task = tasks.find((item) => item.id === complete.dataset.completeTask && item.assigneeEmail === currentUser.email); if (!task || task.status === "completed") return; task.status = "completed"; task.completedAt = new Date().toISOString(); write(keys.tasks, tasks); const project = projectById(task.projectId); notify(project.teacherEmail, `${currentUser.fullName} completed “${task.title}” in ${project.name}.`); addActivity(task.projectId, `${currentUser.fullName} completed “${task.title}”.`); render(); }
+    if (join && !isTeacher) { const projects = getProjects(); 
+        const project = projects.find((item) => item.id === join.dataset.joinProject && item.invites.includes(currentUser.email)); 
+        if (!project) return; 
+        project.invites = project.invites.filter((email) => email !== currentUser.email); 
+        project.members.push(currentUser.email); 
+        write(keys.projects, projects); 
+        notify(project.teacherEmail, `${currentUser.fullName} joined ${project.name}.`); 
+        addActivity(project.id, `${currentUser.fullName} joined the project.`); 
+        render(); 
+    }
+    if (complete && !isTeacher) { const tasks = getTasks(); 
+        const task = tasks.find((item) => item.id === complete.dataset.completeTask && item.assigneeEmail === currentUser.email); 
+        if (!task || task.status === "completed") return; 
+        task.status = "completed"; 
+        task.completedAt = new Date().toISOString(); 
+        write(keys.tasks, tasks); 
+        const project = projectById(task.projectId); 
+        notify(project.teacherEmail, `${currentUser.fullName} completed “${task.title}” in ${project.name}.`); 
+        addActivity(task.projectId, `${currentUser.fullName} completed “${task.title}”.`); 
+        render(); 
+    }
 });
 document.addEventListener("submit", (event) => {
-    const form = event.target.closest("[data-comment-form]"); if (!form) return; event.preventDefault(); const task = getTasks().find((item) => item.id === form.dataset.commentForm); const text = form.elements.comment.value.trim(); if (!task || !text || !canAccessTask(task)) return;
-    const comments = read(keys.comments); comments.push({ id: id("comment"), taskId: task.id, authorName: currentUser.fullName, authorEmail: currentUser.email, text, createdAt: new Date().toISOString() }); write(keys.comments, comments); const project = projectById(task.projectId); if (currentUser.email !== task.assigneeEmail) notify(task.assigneeEmail, `${currentUser.fullName} commented on “${task.title}”.`); else notify(project.teacherEmail, `${currentUser.fullName} commented on “${task.title}”.`); addActivity(task.projectId, `${currentUser.fullName} commented on “${task.title}”.`); render();
+    const form = event.target.closest("[data-comment-form]"); 
+    if (!form) return; event.preventDefault(); 
+    const task = getTasks().find((item) => item.id === form.dataset.commentForm); 
+    const text = form.elements.comment.value.trim(); if (!task || !text || !canAccessTask(task)) return;
+    const comments = read(keys.comments); 
+    comments.push({ id: id("comment"), taskId: task.id, authorName: currentUser.fullName, authorEmail: currentUser.email, text, createdAt: new Date().toISOString() 
+
+    }); 
+    write(keys.comments, comments); 
+    const project = projectById(task.projectId); 
+    if (currentUser.email !== task.assigneeEmail) notify(task.assigneeEmail, `${currentUser.fullName} commented on “${task.title}”.`); 
+    else notify(project.teacherEmail, `${currentUser.fullName} commented on “${task.title}”.`); 
+    addActivity(task.projectId, `${currentUser.fullName} commented on “${task.title}”.`); 
+    render();
 });
 render();

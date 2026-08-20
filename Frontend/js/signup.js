@@ -1,5 +1,7 @@
 const passwordInput = document.getElementById("password");
+
 const togglePassword = document.getElementById("togglePassword");
+
 const passwordIcon = togglePassword.querySelector("span");
 
 window.addEventListener("load", () => {
@@ -25,18 +27,31 @@ togglePassword.addEventListener("click", () => {
 });
 
 const signupForm = document.getElementById("signupForm");
+
 const signupBtn = document.getElementById("signupBtn");
+
 const errorMessage = document.getElementById("errorMessage");
+
 signupForm.addEventListener("submit", function(e){
+    
     e.preventDefault();
+    
     errorMessage.classList.add("hidden");
+    
     const fullName = document.getElementById("fullName").value.trim();
+    
     const email = document.getElementById("email").value.trim();
+    
     const password = passwordInput.value.trim();
+    
     const role = document.querySelector('input[name="role"]:checked').value;
+    
     const institution = document.getElementById("institution").value.trim();
+    
     const department = document.getElementById("department").value.trim();
+    
     const phone = document.getElementById("phone").value.trim();
+    
     const terms = document.getElementById("terms").checked;
 
     if(fullName === ""){
@@ -70,11 +85,15 @@ signupForm.addEventListener("submit", function(e){
     }
 
     const newUser = {fullName,email,password,role,institution,department,phone,bio:"",createdAt:new Date().toISOString()};
+    
     users.push(newUser);
+    
     localStorage.setItem("users", JSON.stringify(users));
+    
     localStorage.setItem("loggedInUser", JSON.stringify(newUser));
 
     signupBtn.disabled = true;
+    
     signupBtn.innerHTML = `
         <svg class="animate-spin h-5 w-5 mx-auto"
             xmlns="http://www.w3.org/2000/svg"
@@ -109,7 +128,9 @@ signupForm.addEventListener("submit", function(e){
 });
 
 const signInTab = document.getElementById("signinTab");
+
 const signUpTab = document.getElementById("signupTab");
 
 signInTab.addEventListener("click",()=>{navigate("login.html");});
+
 signUpTab.addEventListener("click",()=>{navigate("signup.html");});
