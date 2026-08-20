@@ -6,7 +6,6 @@
 <title>CollabOS · Messages</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@450&display=swap" rel="stylesheet"/>
 <script>
   tailwind.config = {
     darkMode: "class",
@@ -32,10 +31,6 @@
           "on-secondary-container": "#00374d",
           error: "#ffb4ab",
         },
-        fontFamily: {
-          sans: ["Inter", "sans-serif"],
-          mono: ["JetBrains Mono", "monospace"],
-        },
       },
     },
   };
@@ -50,48 +45,62 @@
     font-weight: 700; font-size: 13px; color: #111318;
   }
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>body{font-family:Inter,sans-serif}</style>
+
+<style>
+  body, button, input, textarea, select {
+    font-family: Inter, sans-serif !important;
+  }
+</style>
+
 </head>
-<body class="bg-background text-on-surface font-sans text-sm h-screen flex overflow-hidden">
+<body class="bg-background text-on-surface text-sm h-screen flex overflow-hidden">
 
-<!-- ============ LEFT NAVBAR (unchanged structure, space left for more links) ============ -->
-<nav class="bg-surface-container-low text-primary h-screen w-64 border-r border-outline-variant flex flex-col py-6 px-4 shrink-0">
-  <div class="flex items-center gap-2 mb-8">
-    <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-on-primary font-bold text-lg">C</div>
-    <div>
-      <h1 class="font-bold text-on-surface leading-tight">CollabOS</h1>
-      <p class="font-mono text-[11px] text-on-surface-variant">Engineering Team</p>
-    </div>
-  </div>
+<!-- ============ LEFT NAVBAR ============ -->
+<div class="side shrink-0 min-h-screen bg-[#191a1e]">
+<aside class="flex shrink-0 flex-col border-b border-[#3b3c45] bg-[#191a1e] p-5 lg:min-h-screen lg:w-64 lg:border-b-0 lg:border-r">
+      <a href="dashboard.html" class="flex items-center gap-3">
+        <img src="../Assets/SVGs/logo.svg" alt="CollabOS" class="h-9 w-9">
+        <div>
+          <h1 class="text-lg font-semibold text-white">CollabOS</h1>
+          <p class="text-xs text-[#b7b7c0]">Classroom workspace</p>
+        </div>
+      </a>
 
-  <a href="dashboard.html" class="w-full bg-primary text-on-primary font-bold py-2 rounded-lg mb-6 hover:opacity-90 transition-opacity flex items-center justify-center gap-1">
-    <span class="material-symbols-outlined text-[18px]">dashboard</span> Dashboard
-  </a>
+      <nav class="mt-8 space-y-2">
+        <a href="dashboard.html" class="flex items-center gap-3 rounded-md px-3 py-3 text-sm text-[#c5c5cf] hover:bg-[#24252a]">
+          <span class="material-symbols-outlined">dashboard</span>
+          Overview
+        </a>
+        <a href="projects.html" class="flex items-center gap-3 rounded-md px-3 py-3 text-sm text-[#c5c5cf] hover:bg-[#24252a]">
+          <span class="material-symbols-outlined">folder_open</span>
+          Projects
+        </a>
+        <a href="tasks.html" class="flex items-center gap-3 rounded-md px-3 py-3 text-sm text-[#c5c5cf] hover:bg-[#24252a]">
+          <span class="material-symbols-outlined">assignment</span>
+          Tasks
+        </a>
 
-  <!-- Existing nav items -->
-  <div class="space-y-1">
-    <a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-variant hover:text-on-surface rounded-lg transition-colors" href="dashboard.html">
-      <span class="material-symbols-outlined text-[20px]">dashboard</span> Overview
-    </a>
-    <a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-variant hover:text-on-surface rounded-lg transition-colors" href="#">
-      <span class="material-symbols-outlined text-[20px]">assignment_ind</span> My Work
-    </a>
-    <a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-variant hover:text-on-surface rounded-lg transition-colors" href="#">
-      <span class="material-symbols-outlined text-[20px]">account_tree</span> Projects
-    </a>
-    <a class="flex items-center gap-3 px-3 py-2 bg-secondary-container text-on-secondary-container rounded-lg font-bold" href="#">
-      <span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1;">chat</span> Messages
-    </a>
-  </div>
+        <a href="analytics.html" class="flex items-center gap-3 rounded-md px-3 py-3 text-sm text-[#c5c5cf] hover:bg-[#24252a]">
+          <span class="material-symbols-outlined">analytics</span>
+          Analytics
+        </a>
 
-  <div class="flex-1 my-4"></div>
-  <a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-variant hover:text-on-surface rounded-lg transition-colors" href="analytics.html"><span class="material-symbols-outlined text-[20px]">analytics</span> Analytics</a>
+        <a href="messages.html" class="flex items-center gap-3 rounded-md bg-[#08a9df] px-3 py-3 text-sm font-semibold text-[#07151b]">
+          <span class="material-symbols-outlined">forum</span>
+          Messages
+        </a>
+      </nav>
 
-  <div class="pt-4 border-t border-outline-variant space-y-1">
-    <a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-variant hover:text-on-surface rounded-lg transition-colors" href="settings.html">
-      <span class="material-symbols-outlined text-[20px]">settings</span> Settings
-    </a>
-  </div>
-</nav>
+      <a href="settings.html" class="mt-8 flex items-center gap-3 rounded-md px-3 py-3 text-sm text-[#c5c5cf] hover:bg-[#24252a] lg:mt-auto"><span class="material-symbols-outlined">settings</span>Settings</a>
+
+    </aside>
+</div>
+
+
 
 <!-- ============ MAIN ============ -->
 <main class="flex-1 flex overflow-hidden">
@@ -146,32 +155,7 @@
   const STORAGE_KEY = "collabos_messages_v1";
   const ME = activeUser?.fullName || "You";
 
-  const SEED = {
-    "engineering": [
-      { user: "Ankit", text: "Deployed the new API endpoints to staging. Can someone take a look?", time: "10:45 AM" },
-      { user: "Neha", text: "Seeing a weird race condition in the auth flow, looking into it now.", time: "10:32 AM" },
-    ],
-    "frontend": [
-      { user: "Neha", text: "Pushed the new dashboard layout, would love a review.", time: "9:15 AM" },
-    ],
-    "backend": [
-      { user: "Ankit", text: "Migrating the users table tonight, expect a short downtime.", time: "8:50 AM" },
-    ],
-    "random": [
-      { user: "Rahul", text: "Anyone up for coffee later?", time: "9:40 AM" },
-    ],
-    "dm:Piyush": [
-      { user: "Piyush", text: "Hey, got a sec to review my PR?", time: "11:02 AM" },
-    ],
-    "dm:Pulkit": [
-      { user: "Pulkit", text: "Sent over the design mocks, take a look when free.", time: "Yesterday" },
-    ],
-    "dm:Parv": [],
-    "dm:Anjali": [
-      { user: "Anjali", text: "Standup moved to 10:30 tomorrow.", time: "Yesterday" },
-    ],
-  };
-
+  
   function loadStore() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -331,5 +315,34 @@
   renderDmList();
   renderChat();
 </script>
+
+<script>
+  // Navbar active state: a section gets blue background only after it is clicked.
+  const navbarItems = [
+    "overview", "my-work", "projects", "boards", "sprints",
+    "calendar", "inbox", "messages", "files", "analytics",
+    "ai-assistant", "settings"
+  ];
+
+  navbarItems.forEach((item) => {
+    const link = document.getElementById("nav-" + item);
+    if (!link) return;
+
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      navbarItems.forEach((other) => {
+        const el = document.getElementById("nav-" + other);
+        if (!el) return;
+        el.classList.remove("bg-[#08a9df]", "text-[#07151b]");
+        el.classList.add("text-[#c5c5cf]", "hover:bg-[#24252a]");
+      });
+
+      link.classList.remove("text-[#c5c5cf]", "hover:bg-[#24252a]");
+      link.classList.add("bg-[#08a9df]", "text-[#07151b]");
+    });
+  });
+</script>
+
 </body>
 </html>
