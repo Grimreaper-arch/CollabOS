@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CollabOS - Tasks</title><script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+  <style>body{font-family:Inter,sans-serif}</style>
+</head>
+
+<body class="min-h-screen bg-[#101114] text-white">
+  <div class="min-h-screen lg:flex">
+
+    <aside class="flex shrink-0 flex-col border-b border-[#3b3c45] bg-[#191a1e] p-5 lg:min-h-screen lg:w-64 lg:border-b-0 lg:border-r">
+
+      <a href="dashboard.html" class="flex items-center gap-3">
+        <img src="../Assets/SVGs/logo.svg" alt="CollabOS" class="h-9 w-9">
+        <div><h1 class="text-lg font-semibold">CollabOS</h1>
+          <p class="text-xs text-[#b7b7c0]">Classroom workspace</p>
+        </div>
+      </a>
+
+      <nav class="mt-8 space-y-2">
+        <a href="dashboard.html" class="flex items-center gap-3 rounded-md px-3 py-3 text-sm text-[#c5c5cf] hover:bg-[#24252a]">
+          <span class="material-symbols-outlined">dashboard</span>
+          Overview
+        </a>
+
+        <a href="dashboard.html#projects" class="flex items-center gap-3 rounded-md px-3 py-3 text-sm text-[#c5c5cf] hover:bg-[#24252a]">
+          <span class="material-symbols-outlined">folder_open</span>Projects</a>
+          <a href="tasks.html" class="flex items-center gap-3 rounded-md bg-[#08a9df] px-3 py-3 text-sm font-semibold text-[#07151b]">
+            <span class="material-symbols-outlined">assignment</span>
+            Tasks
+          </a>
+
+            <a href="analytics.html" class="flex items-center gap-3 rounded-md px-3 py-3 text-sm text-[#c5c5cf] hover:bg-[#24252a]">
+              <span class="material-symbols-outlined">analytics</span>
+              Analytics
+            </a>
+
+            <a href="messages.html" class="flex items-center gap-3 rounded-md px-3 py-3 text-sm text-[#c5c5cf] hover:bg-[#24252a]">
+              <span class="material-symbols-outlined">forum</span>
+              Messages
+
+            </a>
+          </nav>
+
+      <a href="settings.html" class="mt-8 flex items-center gap-3 rounded-md px-3 py-3 text-sm text-[#c5c5cf] hover:bg-[#24252a] lg:mt-auto">
+        <span class="material-symbols-outlined">settings</span>
+        Settings
+      </a>
+    </aside>
+
+    <main class="min-w-0 flex-1 px-5 py-8 sm:px-10">
+      <header>
+        <p id="roleLabel" class="text-xs font-semibold uppercase tracking-[.18em] text-[#54d7ff]"></p>
+        <h2 id="pageTitle" class="mt-2 text-3xl font-semibold">Tasks</h2>
+        <p id="subtitle" class="mt-2 text-[#bcbcc6]"></p>
+      </header>
+
+      <section class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <article class="rounded-lg border border-[#464751] bg-[#1d1e22] p-5">
+          <p class="text-xs font-semibold tracking-wide text-[#c7c7d1]">TOTAL TASKS</p>
+          <p id="totalCount" class="mt-4 text-3xl font-semibold">0</p>
+        </article>
+
+        <article class="rounded-lg border border-[#464751] bg-[#1d1e22] p-5">
+          <p class="text-xs font-semibold tracking-wide text-[#c7c7d1]">PENDING</p>
+          <p id="pendingCount" class="mt-4 text-3xl font-semibold text-amber-300">0</p>
+        </article>
+
+        <article class="rounded-lg border border-[#464751] bg-[#1d1e22] p-5">
+          <p class="text-xs font-semibold tracking-wide text-[#c7c7d1]">COMPLETED</p>
+          <p id="completedCount" class="mt-4 text-3xl font-semibold text-[#54d7ff]">0</p>
+        </article>
+      </section>
+
+      <section class="mt-8 rounded-lg border border-[#464751] bg-[#1d1e22] p-5">
+        <div class="flex flex-col gap-3 sm:flex-row">
+          <label class="relative flex-1">
+            <span class="material-symbols-outlined absolute left-3 top-3 text-lg text-[#bcbcc6]">search</span>
+            <input id="searchInput" type="search" placeholder="Search tasks, projects, or students" class="w-full rounded-lg border border-[#464751] bg-[#15161a] py-2.5 pl-10 pr-3 text-sm text-white outline-none focus:border-[#54d7ff]">
+          </label>
+
+          <select id="statusFilter" aria-label="Filter tasks by status" class="rounded-lg border border-[#464751] bg-[#15161a] px-3 py-2.5 text-sm text-white outline-none focus:border-[#54d7ff]">
+            <option value="all">All statuses</option>
+            <option value="pending">Pending</option>
+            <option value="completed">Completed</option>
+          </select>
+
+          <select id="projectFilter" aria-label="Filter tasks by project" class="rounded-lg border border-[#464751] bg-[#15161a] px-3 py-2.5 text-sm text-white outline-none focus:border-[#54d7ff]">
+            <option value="all">All projects</option>
+          </select>
+
+        </div>
+      </section>
+      
+      <section class="mt-5 rounded-lg border border-[#464751] bg-[#1d1e22] p-6">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-semibold">All tasks</h3>
+          <span id="resultCount" class="text-sm text-[#bcbcc6]"></span>
+        </div>
+        <div id="taskList" class="mt-5 space-y-3"></div>
+      </section>
+      
+    </main>
+  </div>
+  <script src="../js/tasks.js"></script>
+</body>
+</html>
