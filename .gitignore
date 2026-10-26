@@ -1,0 +1,22 @@
+# Dependencies (reinstalled with npm install)
+node_modules/
+
+# Secrets: the MongoDB connection string and JWT secret
+.env
+
+# Build output (recreated with npm run build)
+dist/
+
+# Files people upload (kept out of git; the folder itself is kept via .gitkeep)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Logs and editor/OS clutter
+*.log
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+
+# Local tool settings
+.claude/

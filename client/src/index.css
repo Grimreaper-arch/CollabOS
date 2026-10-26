@@ -1,0 +1,162 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------
+   CollabOS design tokens
+   Use as bg-panel, border-line, text-muted, bg-primary, etc.
+   --------------------------------------------------------------- */
+@theme {
+    --font-sans: Geist, ui-sans-serif, system-ui, sans-serif;
+    --font-mono: "Geist Mono", ui-monospace, monospace;
+
+    --color-page: #09090b;        /* app background */
+    --color-sidebar: #0c0c0f;     /* sidebar */
+    --color-panel: #111114;       /* cards */
+    --color-inset: #0d0d10;       /* rows and inputs inside cards */
+    --color-raised: #1b1b20;      /* hover / chips */
+    --color-line: #232329;        /* borders */
+    --color-line-soft: #1a1a1f;   /* dividers */
+    --color-muted: #9b9ba6;       /* secondary text */
+    --color-faint: #6b6b76;       /* tertiary text */
+
+    --color-primary: #a8a4ff;     /* brand lavender */
+    --color-primary-hover: #bebbff;
+    --color-primary-ink: #13113a; /* text on primary */
+    --color-accent: #5ee0ff;      /* data / highlights */
+    --color-accent-strong: #22c5ee;
+    --color-accent-ink: #04161c;
+
+    --color-success: #4ade80;
+    --color-warning: #fbbf24;
+    --color-danger: #f87171;
+
+    --animate-fade-in: fade-in 0.15s ease-out;
+    --animate-pop-in: pop-in 0.18s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+    --animate-slide-up: slide-up 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
+
+    @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @keyframes pop-in {
+        from { opacity: 0; transform: translateY(4px) scale(0.97); }
+        to { opacity: 1; transform: none; }
+    }
+    @keyframes slide-up {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: none; }
+    }
+}
+
+@layer base {
+    html {
+        color-scheme: dark;
+    }
+
+    body {
+        @apply min-h-screen bg-page text-zinc-100 antialiased;
+        font-feature-settings: "cv11", "ss01";
+    }
+
+    ::selection {
+        background: color-mix(in srgb, var(--color-primary) 35%, transparent);
+    }
+
+    /* Icon font (Material Symbols Rounded). Our own class, so Tailwind size utilities like text-[14px] win. */
+    .icon {
+        font-family: "Material Symbols Rounded";
+        font-weight: normal;
+        font-style: normal;
+        font-size: 1.25rem;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        display: inline-block;
+        white-space: nowrap;
+        word-wrap: normal;
+        direction: ltr;
+        font-feature-settings: "liga";
+        -webkit-font-smoothing: antialiased;
+        font-variation-settings: "FILL" 0, "wght" 400, "opsz" 24;
+        user-select: none;
+        overflow: hidden;
+        width: 1em;
+        flex-shrink: 0;
+    }
+
+    /* Thin, quiet scrollbars */
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: #2a2a31 transparent;
+    }
+}
+
+/* Reusable component classes. Kept in a layer so utilities can still override them. */
+@layer components {
+    /* Cards: subtle border, faint top highlight */
+    .card {
+        @apply rounded-2xl border border-line bg-panel shadow-[inset_0_1px_0_rgba(255,255,255,0.03),0_1px_2px_rgba(0,0,0,0.4)];
+    }
+
+    /* Form controls */
+    .field {
+        @apply h-10 w-full rounded-xl border border-line bg-inset px-3.5 text-sm text-zinc-100 outline-none transition placeholder:text-faint hover:border-[#2e2e36] focus:border-primary/60 focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-50;
+    }
+    textarea.field {
+        @apply h-auto min-h-24 resize-y py-2.5 leading-relaxed;
+    }
+
+    .label {
+        @apply mb-1.5 block text-[13px] font-medium text-zinc-300;
+    }
+
+    /* Buttons */
+    .btn, .btn-primary, .btn-secondary, .btn-ghost, .btn-danger, .btn-accent {
+        @apply inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl px-4 text-sm font-medium whitespace-nowrap transition select-none active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
+    }
+    .btn-primary {
+        @apply bg-primary text-primary-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_0_0_1px_rgba(168,164,255,0.4),0_8px_24px_-8px_rgba(168,164,255,0.5)] hover:bg-primary-hover;
+    }
+    .btn-secondary {
+        @apply border border-line bg-white/[0.03] text-zinc-200 hover:border-[#33333c] hover:bg-white/[0.06];
+    }
+    .btn-ghost {
+        @apply text-muted hover:bg-white/[0.05] hover:text-zinc-100;
+    }
+    .btn-danger {
+        @apply border border-danger/30 bg-danger/10 text-danger hover:bg-danger/15;
+    }
+    .btn-sm {
+        @apply h-8 rounded-lg px-3 text-[13px];
+    }
+    .btn-icon {
+        @apply inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted transition hover:bg-white/[0.06] hover:text-zinc-100;
+    }
+
+    /* Small rounded label */
+    .chip {
+        @apply inline-flex items-center gap-1 rounded-md border border-line bg-white/[0.03] px-2 py-0.5 text-xs font-medium text-zinc-300;
+    }
+
+    .kbd {
+        @apply inline-flex h-5 min-w-5 items-center justify-center rounded border border-line bg-white/[0.04] px-1 font-mono text-[10px] text-muted;
+    }
+
+    /* Background patterns */
+    .grid-bg {
+        background-image:
+            linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+        background-size: 32px 32px;
+    }
+    .dot-bg {
+        background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+        background-size: 22px 22px;
+    }
+}
+
+/* Old class names still used by some components */
+@layer components {
+    .btn-accent {
+        @apply h-8 rounded-lg px-3 text-[13px] bg-accent text-accent-ink hover:bg-[#8de9ff];
+    }
+}
