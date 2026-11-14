@@ -1,10 +1,21 @@
-import Task from "../models/Task.js";
+import Task, { STAGES } from "../models/Task.js";
 import Comment from "../models/Comment.js";
 import Project from "../models/Project.js";
 import ApiError from "../utils/ApiError.js";
 import { can } from "../middleware/auth.js";
 import { canManageTask, getProjectFor, same } from "../utils/access.js";
 import { logActivity, notify } from "../utils/events.js";
+import { deleteEvent, upsertTaskEvent } from "../services/google.js";
+
+// Mirrors a task into its assignee's Google Calendar (if they connected it). Never throws.
+async function syncToGoogle(task, projectName) {
+    try {
+        const id = await upsertTaskEvent(task, { projectName });
+        if (id !== (task.googleEventId || null)) await Task.updateOne({ _id: task._id }, { googleEventId: id });
+    } catch (error) {
+        console.error("Google Calendar sync failed:", error.message);
+    }
+}
 
 const POPULATE = [
     { path: "project", select: "name owner" },
@@ -82,8 +93,9 @@ export async function createTask(req, res) {
     })));
 
     await Promise.all(people.filter((id) => id !== String(req.user._id))
-        .map((id) => notify(id, `${req.user.fullName} assigned you "${title}" in ${project.name}.`, "/tasks", "task")));
+        .map((id) => notify(id, `${req.user.fullName} assigned you "${title}" in ${project.name}.`, "/tasks", "task", project.org)));
     await logActivity(project, req.user._id, `${req.user.fullName} assigned "${title}" to ${people.length} ${people.length === 1 ? "person" : "people"}.`);
+    await Promise.all(tasks.map((t) => syncToGoogle(t, project.name)));
 
     res.status(201).json({ tasks });
 }
@@ -99,20 +111,50 @@ export async function updateStatus(req, res) {
     if (task.status === status) return res.json({ task });
 
     task.status = status;
-    task.completedAt = status === "completed" ? new Date() : null;
     await task.save();
+    await syncToGoogle(task, project.name);
 
     const verb = status === "completed" ? "completed" : "reopened";
     if (!same(task.assignedBy, req.user._id)) {
-        await notify(task.assignedBy, `${req.user.fullName} ${verb} "${task.title}" in ${project.name}.`, "/tasks", "task");
+        await notify(task.assignedBy, `${req.user.fullName} ${verb} "${task.title}" in ${project.name}.`, "/tasks", "task", task.org);
     }
     await logActivity(project, req.user._id, `${req.user.fullName} ${verb} "${task.title}".`);
     res.json({ task: await task.populate(POPULATE) });
 }
 
+const STAGE_LABELS = { todo: "To do", in_progress: "In progress", review: "In review", done: "Done" };
+
+// PATCH /api/tasks/:id/stage  body: { stage, position }   (Kanban drag and drop)
+// The assignee moves their own work; whoever manages the task can move it too (e.g. review → done).
+export async function moveTask(req, res) {
+    const { task, project, isAssignee, canManage } = await getTaskFor(req, req.params.id);
+    const { stage, position } = req.body;
+    if (!STAGES.includes(stage)) throw new ApiError(400, "Unknown column.");
+    if (position !== undefined && !Number.isFinite(Number(position))) throw new ApiError(400, "Invalid position.");
+
+    const from = task.stage;
+    task.stage = stage;
+    if (position !== undefined) task.position = Number(position);
+    await task.save();
+    if ((from === "done") !== (stage === "done")) await syncToGoogle(task, project.name);
+
+    if (from !== stage) {
+        // Let the other side know: ready for review → the assigner; finished by a manager → the assignee.
+        const other = isAssignee ? task.assignedBy : task.assignee;
+        if (!same(other, req.user._id) && (stage === "review" || stage === "done" || !isAssignee)) {
+            await notify(other, `${req.user.fullName} moved "${task.title}" to ${STAGE_LABELS[stage]}.`, `/projects/${project._id}`, "task", task.org);
+        }
+        await logActivity(project, req.user._id, `${req.user.fullName} moved "${task.title}" from ${STAGE_LABELS[from]} to ${STAGE_LABELS[stage]}.`);
+    } else if (canManage || isAssignee) {
+        // Reordering inside a column: still tell open boards to refresh.
+        await logActivity(project, req.user._id, `${req.user.fullName} reordered "${task.title}".`);
+    }
+    res.json({ task: await task.populate(POPULATE) });
+}
+
 // PUT /api/tasks/:id  (assigner, project lead, or tasks.manage_all)
 export async function updateTask(req, res) {
-    const { task, canManage } = await getTaskFor(req, req.params.id);
+    const { task, project, canManage } = await getTaskFor(req, req.params.id);
     if (!canManage) throw new ApiError(403, "Only whoever assigned this task, the project lead, or someone with 'tasks.manage_all' can edit it.");
 
     ["title", "description", "priority"].forEach((field) => {
@@ -125,6 +167,7 @@ export async function updateTask(req, res) {
         task.overdueNotifiedAt = null;
     }
     await task.save();
+    await syncToGoogle(task, project?.name || "CollabOS");
     res.json({ task: await task.populate(POPULATE) });
 }
 
@@ -135,6 +178,7 @@ export async function deleteTask(req, res) {
 
     await Comment.deleteMany({ task: task._id });
     await task.deleteOne();
+    if (task.googleEventId) await Promise.resolve(deleteEvent(task.assignee, task.googleEventId)).catch(() => {});
     await logActivity(project, req.user._id, `${req.user.fullName} deleted "${task.title}".`);
     res.json({ message: "Task deleted." });
 }
@@ -153,7 +197,7 @@ export async function addComment(req, res) {
 
     // Tell the other side of the conversation.
     const recipient = isAssignee ? task.assignedBy : task.assignee;
-    if (!same(recipient, req.user._id)) await notify(recipient, `${req.user.fullName} commented on "${task.title}".`, "/tasks", "task");
+    if (!same(recipient, req.user._id)) await notify(recipient, `${req.user.fullName} commented on "${task.title}".`, "/tasks", "task", task.org);
     await logActivity(project, req.user._id, `${req.user.fullName} commented on "${task.title}".`);
 
     res.status(201).json({ comment: await comment.populate("author", "fullName avatar") });

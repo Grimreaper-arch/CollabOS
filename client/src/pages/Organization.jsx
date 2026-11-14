@@ -4,18 +4,19 @@ import { api } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import useApi from "../utils/useApi";
-import { Avatar, Empty, ErrorText, Field, Icon, Input, Modal, PageHeader, Panel, Select, Spinner, StatCard, Tabs, Toggle } from "../components/ui";
+import { Avatar, AvatarStack, Badge, Empty, ErrorText, Field, Icon, Input, Modal, Panel, Select, Skeleton, Spinner, StatCard, Tabs, Toggle } from "../components/ui";
 import { formatDate, plural, timeAgo } from "../utils/format";
 
-const GROUP_ICONS = { Organization: "corporate_fare", People: "group", Roles: "badge", Projects: "folder_open", Tasks: "checklist", Files: "folder_zip" };
+const GROUP_ICONS = { Organization: "apartment", People: "group", Roles: "badge", Projects: "folder", Tasks: "task_alt", Files: "folder_zip", Billing: "credit_card" };
 
 // ---------- People ----------
 
-function PeopleTab({ roles, onChange }) {
+function PeopleTab({ roles, members, onChange }) {
     const { user, role: myRole, can } = useAuth();
     const toast = useToast();
-    const { data, error, loading, reload } = useApi("/org/members");
+    const { data, error, loading, reload } = members;
     const [search, setSearch] = useState("");
+    const [roleFilter, setRoleFilter] = useState("all");
 
     const assignable = roles.filter((r) => r.level > myRole.level && !r.isSystem);
     const canManage = (m) => m.user._id !== user._id && m.role.level > myRole.level;
@@ -43,44 +44,58 @@ function PeopleTab({ roles, onChange }) {
         }
     };
 
-    if (loading) return <Spinner />;
+    if (loading && !data) return <div className="space-y-2">{[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-14 rounded-xl" />)}</div>;
     const q = search.trim().toLowerCase();
-    const members = (data?.members || []).filter((m) => `${m.user.fullName} ${m.user.email} ${m.role.name}`.toLowerCase().includes(q));
+    const all = data?.members || [];
+    const shown = all.filter((m) => `${m.user.fullName} ${m.user.email} ${m.role.name}`.toLowerCase().includes(q) && (roleFilter === "all" || m.role._id === roleFilter));
+    const manages = can("members.assign_role") || can("members.remove");
+    const columns = "md:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_120px_200px_40px]";
 
     return (
-        <Panel title="People" description={`You can change or remove people whose role is below yours (${myRole.name}).`}
-            action={<div className="hidden w-64 sm:block"><Input icon="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search people" aria-label="Search people" className="h-9" /></div>}
-            bodyClassName="p-0">
+        <>
+            <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+                <div className="sm:w-72"><Input icon="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name, email or role" aria-label="Search people" /></div>
+                <div className="sm:w-52">
+                    <Select value={roleFilter} onChange={setRoleFilter} ariaLabel="Filter by role"
+                        options={[{ value: "all", label: "All roles", icon: "badge" }, ...roles.map((r) => ({ value: r._id, label: r.name, hint: String(r.memberCount) }))]} />
+                </div>
+                <p className="text-[14px] text-faint sm:ml-auto">{manages ? `You can manage people whose role is below yours (${myRole.name}).` : "Your role can view the team but not change it."}</p>
+            </div>
             <ErrorText>{error}</ErrorText>
-            <div className="divide-y divide-line-soft">
-                {members.map((m) => (
-                    <div key={m._id} className="flex flex-col gap-3 px-5 py-3.5 transition hover:bg-white/[0.015] sm:flex-row sm:items-center">
-                        <div className="flex min-w-0 flex-1 items-center gap-3">
-                            <Avatar user={m.user} size="h-9 w-9 text-xs" />
+
+            <div className="rows-card">
+                <div className={`hidden gap-x-4 bg-white/[0.015] py-2.5 text-[13px] font-medium text-faint md:grid ${columns}`}>
+                    <span>{plural(shown.length, "person", "people")}</span><span>Department</span><span>Joined</span><span>Role</span><span />
+                </div>
+                {shown.map((m) => (
+                    <div key={m._id} className={`grid grid-cols-1 items-center gap-x-4 gap-y-2.5 py-3 transition-colors hover:bg-white/[0.02] ${columns}`}>
+                        <div className="flex min-w-0 items-center gap-3">
+                            <Avatar user={m.user} size="h-9 w-9 text-[13px]" />
                             <div className="min-w-0">
-                                <p className="truncate text-sm font-medium text-zinc-100">{m.user.fullName} {m.user._id === user._id && <span className="text-xs font-normal text-faint">(you)</span>}</p>
-                                <p className="truncate text-xs text-faint">{m.user.email} · joined {formatDate(m.createdAt)}</p>
+                                <p className="truncate text-[15px] font-medium text-zinc-100">{m.user.fullName}{m.user._id === user._id && <span className="ml-1.5 rounded bg-white/[0.07] px-1 py-px text-[12px] font-medium text-muted">You</span>}</p>
+                                <p className="truncate text-[13.5px] text-faint">{m.user.email}</p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <span className="hidden truncate text-[14px] text-muted md:block">{m.user.department || <span className="text-faint">Not set</span>}</span>
+                        <span className="hidden text-[14px] text-muted md:block">{formatDate(m.createdAt)}</span>
+                        <div>
                             {can("members.assign_role") && canManage(m) ? (
-                                <div className="w-48">
-                                    <Select value={m.role._id} onChange={(roleId) => changeRole(m, roleId)} ariaLabel={`Role of ${m.user.fullName}`} className="h-9"
-                                        options={assignable.map((r) => ({ value: r._id, label: r.name, hint: `L${r.level}` }))} />
-                                </div>
+                                <Select value={m.role._id} onChange={(roleId) => changeRole(m, roleId)} ariaLabel={`Role of ${m.user.fullName}`} className="h-8"
+                                    options={assignable.map((r) => ({ value: r._id, label: r.name, hint: `Level ${r.level}` }))} />
                             ) : (
-                                <span className={`chip ${m.role.isSystem ? "border-warning/30 bg-warning/10 text-warning" : "border-primary/25 text-primary"}`}>
-                                    {m.role.isSystem && <Icon name="workspace_premium" className="text-[14px]" />}{m.role.name}
-                                </span>
+                                <Badge tone={m.role.isSystem ? "amber" : "teal"} icon={m.role.isSystem ? "workspace_premium" : "badge"}>{m.role.name}</Badge>
                             )}
+                        </div>
+                        <div className="flex md:justify-end">
                             {can("members.remove") && canManage(m) && (
-                                <button onClick={() => remove(m)} className="btn-icon hover:bg-danger/10 hover:text-danger" aria-label={`Remove ${m.user.fullName}`}><Icon name="person_remove" /></button>
+                                <button onClick={() => remove(m)} className="btn-icon hover:bg-danger/10 hover:text-danger" aria-label={`Remove ${m.user.fullName}`} title="Remove from organization"><Icon name="person_remove" /></button>
                             )}
                         </div>
                     </div>
                 ))}
+                {!shown.length && <Empty compact icon="person_search" title="Nobody matches">Try a different name or role.</Empty>}
             </div>
-        </Panel>
+        </>
     );
 }
 
@@ -115,14 +130,15 @@ function RoleEditor({ role, groups, onSaved, onCancel }) {
     };
 
     const levels = Array.from({ length: 10 }, (_, i) => myRole.level + 1 + i);
+    const grantable = groups.flatMap((g) => g.permissions).filter((p) => can(p.key)).length;
 
     return (
         <form onSubmit={save} className="space-y-5">
-            <div className="grid gap-4 sm:grid-cols-[1fr_160px]">
+            <div className="grid gap-4 sm:grid-cols-[1fr_170px]">
                 <Field label="Role name">
                     <Input icon="badge" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required maxLength={40} placeholder="e.g. Team Lead" aria-label="Role name" autoFocus />
                 </Field>
-                <Field label="Seniority">
+                <Field label="Seniority" hint="Lower number = more senior">
                     <Select value={form.level} onChange={(level) => setForm({ ...form, level: Number(level) })} ariaLabel="Seniority level"
                         options={levels.map((l) => ({ value: l, label: `Level ${l}`, hint: l === myRole.level + 1 ? "highest" : undefined }))} />
                 </Field>
@@ -134,52 +150,56 @@ function RoleEditor({ role, groups, onSaved, onCancel }) {
             <div>
                 <div className="mb-2 flex items-center justify-between">
                     <span className="label mb-0">Permissions</span>
-                    <span className="font-mono text-xs text-faint">{form.permissions.length} selected</span>
+                    <Badge tone={form.permissions.length ? "teal" : ""}>{form.permissions.length} of {grantable} selected</Badge>
                 </div>
                 <div className="max-h-[44vh] space-y-3 overflow-y-auto pr-1">
-                    {groups.map((g) => (
-                        <fieldset key={g.group} className="rounded-xl border border-line bg-inset">
-                            <legend className="sr-only">{g.group}</legend>
-                            <p className="flex items-center gap-2 border-b border-line-soft px-4 py-2.5 text-[13px] font-medium text-zinc-200">
-                                <Icon name={GROUP_ICONS[g.group] || "tune"} className="text-[18px] text-primary" />{g.group}
-                            </p>
-                            <div className="divide-y divide-line-soft">
-                                {g.permissions.map((p) => {
-                                    const allowed = can(p.key);
-                                    return (
-                                        <label key={p.key} className={`flex items-center justify-between gap-4 px-4 py-2.5 ${allowed ? "cursor-pointer" : "cursor-not-allowed opacity-45"}`}
-                                            title={allowed ? "" : "You can't grant a permission you don't have"}>
-                                            <span>
-                                                <span className="block text-[13px] text-zinc-200">{p.label}</span>
-                                                <code className="font-mono text-[11px] text-faint">{p.key}</code>
-                                            </span>
-                                            <Toggle checked={form.permissions.includes(p.key)} onChange={() => allowed && toggle(p.key)} label={p.label} />
-                                        </label>
-                                    );
-                                })}
-                            </div>
-                        </fieldset>
-                    ))}
+                    {groups.map((g) => {
+                        const on = g.permissions.filter((p) => form.permissions.includes(p.key)).length;
+                        return (
+                            <fieldset key={g.group} className="overflow-hidden rounded-lg border border-line bg-inset">
+                                <legend className="sr-only">{g.group}</legend>
+                                <p className="flex items-center gap-2 border-b border-line-soft bg-white/[0.02] px-4 py-2.5 text-[14.5px] font-semibold text-zinc-100">
+                                    <Icon name={GROUP_ICONS[g.group] || "tune"} className="text-[18px] text-accent" />{g.group}
+                                    <span className="ml-auto text-[13px] font-normal text-faint tabular-nums">{on}/{g.permissions.length}</span>
+                                </p>
+                                <div className="divide-y divide-line-soft">
+                                    {g.permissions.map((p) => {
+                                        const allowed = can(p.key);
+                                        return (
+                                            <label key={p.key} className={`flex items-center justify-between gap-4 px-4 py-2.5 transition-colors ${allowed ? "cursor-pointer hover:bg-white/[0.02]" : "cursor-not-allowed opacity-45"}`}
+                                                title={allowed ? "" : "You can't grant a permission you don't have"}>
+                                                <span>
+                                                    <span className="block text-[14.5px] text-zinc-200">{p.label}</span>
+                                                    <code className="font-mono text-[12.5px] text-faint">{p.key}</code>
+                                                </span>
+                                                <Toggle checked={form.permissions.includes(p.key)} onChange={() => allowed && toggle(p.key)} label={p.label} />
+                                            </label>
+                                        );
+                                    })}
+                                </div>
+                            </fieldset>
+                        );
+                    })}
                 </div>
             </div>
             <ErrorText>{error}</ErrorText>
             <div className="flex justify-end gap-2 border-t border-line-soft pt-4">
                 <button type="button" onClick={onCancel} className="btn-ghost">Cancel</button>
-                <button className="btn-primary"><Icon name="check" className="text-[18px]" />{role ? "Save role" : "Create role"}</button>
+                <button className="btn-primary"><Icon name="check" className="text-[17px]" />{role ? "Save role" : "Create role"}</button>
             </div>
         </form>
     );
 }
 
 function RolesTab({ roles, reload }) {
-    const { can } = useAuth();
+    const { can, role: myRole } = useAuth();
     const toast = useToast();
     const catalog = useApi("/org/permissions");
     const [editing, setEditing] = useState(null); // null = closed, {} = new, role = edit
+    const [expanded, setExpanded] = useState(null);
 
     const groups = catalog.data?.groups || [];
-    const labelOf = Object.fromEntries(groups.flatMap((g) => g.permissions.map((p) => [p.key, p.label])));
-    const total = Object.keys(labelOf).length;
+    const total = groups.reduce((sum, g) => sum + g.permissions.length, 0);
 
     const remove = async (role) => {
         if (!confirm(`Delete the role "${role.name}"?`)) return;
@@ -195,48 +215,77 @@ function RolesTab({ roles, reload }) {
     return (
         <>
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                <p className="text-[13px] text-muted">Lower level = more senior. People can only manage roles below their own.</p>
-                {can("roles.manage") && <button onClick={() => setEditing({})} className="btn-primary btn-sm"><Icon name="add" className="text-[18px]" />New role</button>}
+                <p className="max-w-xl text-[14.5px] text-muted">Roles are ranked by seniority, most senior first. People can only manage roles below their own, and can't grant a permission they don't have.</p>
+                {can("roles.manage") && <button onClick={() => setEditing({})} className="btn-primary"><Icon name="add" className="text-[18px]" />New role</button>}
             </div>
-            <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
+
+            {/* The hierarchy as a ladder: one rung per role, most senior at the top. */}
+            <ol className="relative space-y-3 before:absolute before:top-6 before:bottom-6 before:left-[19px] before:w-px before:bg-line">
                 {roles.map((r) => {
-                    const full = r.permissions.length === total;
+                    const full = total > 0 && r.permissions.length === total;
+                    const mine = r._id === myRole._id;
+                    const open = expanded === r._id;
                     return (
-                        <article key={r._id} className="card flex flex-col p-5">
-                            <div className="flex items-start justify-between gap-3">
-                                <div className="flex items-center gap-3">
-                                    <span className={`flex h-10 w-10 items-center justify-center rounded-xl ${r.isSystem ? "bg-warning/12 text-warning" : "bg-primary/12 text-primary"}`}>
-                                        <Icon name={r.isSystem ? "workspace_premium" : "badge"} />
-                                    </span>
-                                    <div>
-                                        <h4 className="font-semibold text-white">{r.name}</h4>
-                                        <p className="text-xs text-faint">{plural(r.memberCount, "person", "people")}</p>
+                        <li key={r._id} className="relative flex gap-4">
+                            <span className={`relative z-[1] flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-full border text-[11.5px] leading-none font-semibold ${r.isSystem ? "border-warning/40 bg-[#2a2416] text-warning" : mine ? "border-accent/50 bg-[#10302d] text-accent" : "border-line bg-panel text-muted"}`} title={`Seniority level ${r.level}`}>
+                                <span className="text-[10px] font-medium opacity-70">LVL</span>{r.level}
+                            </span>
+                            <article className={`card min-w-0 flex-1 ${mine ? "border-accent/30" : ""}`}>
+                                <div className="flex flex-col gap-3 p-4 lg:flex-row lg:items-center">
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <h4 className="text-[15.5px] font-semibold text-ink">{r.name}</h4>
+                                            {r.isSystem && <Badge tone="amber" icon="workspace_premium">Owner</Badge>}
+                                            {!r.isSystem && r.isCustom && <Badge>Custom</Badge>}
+                                            {mine && <Badge tone="teal">Your role</Badge>}
+                                        </div>
+                                        <p className="mt-0.5 text-[14.5px] text-muted">{r.description || "No description"}</p>
+                                    </div>
+                                    <div className="flex shrink-0 items-center gap-5">
+                                        <div className="text-right">
+                                            <p className="text-[14.5px] font-semibold text-zinc-100 tabular-nums">{plural(r.memberCount, "person", "people")}</p>
+                                            <p className="text-[13px] text-faint">hold this role</p>
+                                        </div>
+                                        <div className="w-36">
+                                            <div className="mb-1 flex justify-between text-[13px]"><span className="text-faint">Permissions</span><span className="font-medium text-zinc-300 tabular-nums">{full ? "All" : `${r.permissions.length}/${total}`}</span></div>
+                                            <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.07]"><div className={`h-full rounded-full ${full ? "bg-warning" : "bg-gradient-to-r from-accent to-success"}`} style={{ width: `${total ? (r.permissions.length / total) * 100 : 0}%` }} /></div>
+                                        </div>
+                                        <div className="flex gap-1">
+                                            <button onClick={() => setExpanded(open ? null : r._id)} className={`btn-icon ${open ? "bg-white/[0.07] text-white" : ""}`} aria-expanded={open} aria-label={`${open ? "Hide" : "Show"} permissions of ${r.name}`} title="Show permissions"><Icon name={open ? "expand_less" : "expand_more"} /></button>
+                                            {can("roles.manage") && r.manageable && (
+                                                <>
+                                                    <button onClick={() => setEditing(r)} className="btn-icon" aria-label={`Edit ${r.name}`} title="Edit role"><Icon name="edit" className="text-[18px]" /></button>
+                                                    <button onClick={() => remove(r)} className="btn-icon hover:bg-danger/10 hover:text-danger" aria-label={`Delete ${r.name}`} title="Delete role"><Icon name="delete" className="text-[18px]" /></button>
+                                                </>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                                <span className="chip font-mono">L{r.level}</span>
-                            </div>
-                            <p className="mt-3 text-[13px] text-muted">{r.description || "No description"}</p>
-                            <div className="mt-4 flex items-center gap-2">
-                                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
-                                    <div className={`h-full rounded-full ${full ? "bg-warning" : "bg-primary"}`} style={{ width: `${total ? (r.permissions.length / total) * 100 : 0}%` }} />
-                                </div>
-                                <span className="font-mono text-[11px] text-faint">{r.permissions.length}/{total}</span>
-                            </div>
-                            <div className="mt-3 flex flex-1 flex-wrap content-start gap-1.5">
-                                {full ? <span className="chip border-warning/30 text-warning">Full access</span>
-                                    : r.permissions.length ? r.permissions.map((p) => <span key={p} className="chip" title={p}>{labelOf[p] || p}</span>)
-                                        : <span className="text-xs text-faint">Basic access only: own tasks, comments and messages.</span>}
-                            </div>
-                            {can("roles.manage") && r.manageable && (
-                                <div className="mt-4 flex gap-2 border-t border-line-soft pt-4">
-                                    <button onClick={() => setEditing(r)} className="btn-secondary btn-sm flex-1"><Icon name="edit" className="text-base" />Edit</button>
-                                    <button onClick={() => remove(r)} className="btn-icon h-8 w-8 hover:bg-danger/10 hover:text-danger" aria-label={`Delete ${r.name}`}><Icon name="delete" className="text-[18px]" /></button>
-                                </div>
-                            )}
-                        </article>
+                                {open && (
+                                    <div className="grid gap-x-6 gap-y-4 border-t border-line-soft p-4 sm:grid-cols-2 xl:grid-cols-3">
+                                        {groups.map((g) => (
+                                            <div key={g.group}>
+                                                <p className="mb-1.5 flex items-center gap-1.5 text-[13.5px] font-semibold text-zinc-200"><Icon name={GROUP_ICONS[g.group] || "tune"} className="text-[16px] text-faint" />{g.group}</p>
+                                                <ul className="space-y-1">
+                                                    {g.permissions.map((p) => {
+                                                        const has = r.permissions.includes(p.key);
+                                                        return (
+                                                            <li key={p.key} className={`flex items-start gap-1.5 text-[14px] ${has ? "text-zinc-300" : "text-faint/70"}`}>
+                                                                <Icon name={has ? "check" : "remove"} className={`mt-px text-[15px] ${has ? "text-success" : "text-faint/50"}`} />{p.label}
+                                                            </li>
+                                                        );
+                                                    })}
+                                                </ul>
+                                            </div>
+                                        ))}
+                                        {!r.permissions.length && <p className="text-[14px] text-faint sm:col-span-2 xl:col-span-3">Basic access only: own tasks, comments and messages.</p>}
+                                    </div>
+                                )}
+                            </article>
+                        </li>
                     );
                 })}
-            </div>
+            </ol>
 
             <Modal open={editing !== null} onClose={() => setEditing(null)} title={editing?._id ? `Edit ${editing.name}` : "New role"}
                 description="Pick exactly what this role can do. You can't grant permissions you don't have." size="max-w-2xl">
@@ -278,45 +327,46 @@ function InvitationsTab({ roles }) {
     const cancel = async (invite) => {
         try {
             await api(`/org/invitations/${invite._id}`, { method: "DELETE" });
-            toast.success("Invitation cancelled", invite.email);
+            toast.success("Invitation revoked", invite.email);
             reload();
         } catch (e) {
-            toast.error("Couldn't cancel", e.message);
+            toast.error("Couldn't revoke", e.message);
         }
     };
 
     const pending = data?.invitations || [];
+    const count = form.emails.split(/[\s,;]+/).filter((e) => e.includes("@")).length;
 
     return (
-        <div className="grid gap-6 xl:grid-cols-[420px_1fr]">
-            <Panel title="Invite people" description="They'll see the invite when they log in or sign up with that email." className="h-fit">
+        <div className="grid items-start gap-4 xl:grid-cols-[400px_minmax(0,1fr)]">
+            <Panel title="Invite people" icon="person_add" description="They join in one click from the email, or when they sign in with that address.">
                 <form onSubmit={send} className="space-y-4">
                     <Field label="Email addresses" hint="Separate several with commas or new lines.">
                         <textarea value={form.emails} onChange={(e) => setForm({ ...form, emails: e.target.value })} required className="field" placeholder={"name@company.com\nother@company.com"} aria-label="Email addresses" />
                     </Field>
-                    <Field label="Role">
+                    <Field label="Role" hint="You can invite people to roles below your own.">
                         <Select value={form.roleId} onChange={(roleId) => setForm({ ...form, roleId })} ariaLabel="Role" placeholder="Choose their role"
                             options={invitable.map((r) => ({ value: r._id, label: r.name, icon: "badge", hint: `Level ${r.level}` }))} />
                     </Field>
                     <ErrorText>{error}</ErrorText>
-                    <button disabled={busy} className="btn-primary w-full"><Icon name="send" className="text-[18px]" />{busy ? "Sending…" : "Send invitations"}</button>
+                    <button disabled={busy} className="btn-primary w-full"><Icon name="send" className="text-[17px]" />{busy ? "Sending…" : count > 1 ? `Send ${count} invitations` : "Send invitation"}</button>
                 </form>
             </Panel>
 
-            <Panel title="Pending invitations" description="Invitations expire after 7 days.">
-                <div className="space-y-2">
+            <Panel title="Pending invitations" icon="outgoing_mail" description="Invitations expire after 7 days." bodyClassName="px-4 py-1.5" action={pending.length > 0 && <Badge>{pending.length}</Badge>}>
+                <div className="rows">
                     {pending.length ? pending.map((i) => (
-                        <div key={i._id} className="flex items-center gap-3 rounded-xl border border-line bg-inset p-3">
-                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent"><Icon name="mail" /></span>
+                        <div key={i._id} className="flex items-center gap-3 py-2.5">
+                            <span className={`tile ${i.expired ? "tile-red" : "tile-teal"}`}><Icon name={i.expired ? "mail_off" : "mail"} /></span>
                             <div className="min-w-0 flex-1">
-                                <p className="truncate text-sm font-medium text-zinc-100">{i.email}</p>
-                                <p className="text-xs text-faint">
-                                    as <span className="text-primary">{i.role?.name}</span> · by {i.invitedBy?.fullName} · {i.expired ? <span className="text-danger">expired</span> : `expires ${formatDate(i.expiresAt)}`}
-                                </p>
+                                <p className="truncate text-[15px] font-medium text-zinc-100">{i.email}</p>
+                                <p className="truncate text-[13.5px] text-faint">Invited by {i.invitedBy?.fullName} · {timeAgo(i.createdAt)}</p>
                             </div>
-                            {i.role && i.role.level > myRole.level && <button onClick={() => cancel(i)} className="btn-ghost btn-sm hover:text-danger">Cancel</button>}
+                            <span className="hidden sm:block"><Badge tone="teal" icon="badge">{i.role?.name || "Role removed"}</Badge></span>
+                            {i.expired ? <Badge tone="red" dot>Expired</Badge> : <Badge tone="amber" dot>Expires {formatDate(i.expiresAt)}</Badge>}
+                            {i.role && i.role.level > myRole.level && <button onClick={() => cancel(i)} className="btn-ghost btn-sm hover:text-danger">Revoke</button>}
                         </div>
-                    )) : <Empty icon="outgoing_mail" title="No pending invitations">Invite your teammates to get started.</Empty>}
+                    )) : <Empty compact icon="outgoing_mail" title="No pending invitations">People you invite appear here until they accept.</Empty>}
                 </div>
             </Panel>
         </div>
@@ -325,24 +375,53 @@ function InvitationsTab({ roles }) {
 
 // ---------- Audit log ----------
 
+// What kind of change an audit entry describes, read from its wording.
+const AUDIT_KINDS = [
+    [/invit/i, "Invitation", "mail", "tile-teal"],
+    [/removed|left the organization|deleted/i, "Removal", "person_remove", "tile-red"],
+    [/ownership|owner/i, "Ownership", "workspace_premium", "tile-amber"],
+    [/role/i, "Role", "badge", "tile-steel"],
+    [/plan|upgrad|payment|billing/i, "Billing", "credit_card", "tile-green"],
+    [/joined|accepted/i, "Joined", "person_add", "tile-green"]
+];
+const auditKind = (text) => AUDIT_KINDS.find(([pattern]) => pattern.test(text)) || [null, "Organization", "apartment", ""];
+
 function AuditTab() {
     const { data, loading } = useApi("/org/audit");
-    if (loading) return <Spinner />;
+    const [filter, setFilter] = useState("all");
+    if (loading && !data) return <Spinner />;
+    const events = (data?.events || []).map((e) => { const [, label, icon, tile] = auditKind(e.text); return { ...e, label, icon, tile }; });
+    const kinds = [...new Set(events.map((e) => e.label))];
+    const shown = events.filter((e) => filter === "all" || e.label === filter);
+    const dayOf = (date) => new Date(date).toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+
     return (
-        <Panel title="Audit log" description="Every change to people, roles and invitations in your organization.">
-            {data?.events.length ? (
-                <ol className="relative space-y-5 before:absolute before:top-2 before:bottom-2 before:left-[15px] before:w-px before:bg-line">
-                    {data.events.map((e) => (
-                        <li key={e._id} className="relative flex gap-4">
-                            <Avatar user={e.actor} size="h-8 w-8 text-[10px] ring-4 ring-panel" />
-                            <div className="min-w-0 pt-1">
-                                <p className="text-[13px] text-zinc-200">{e.text}</p>
-                                <p className="mt-0.5 font-mono text-[11px] text-faint">{new Date(e.createdAt).toLocaleString()} · {timeAgo(e.createdAt)}</p>
-                            </div>
-                        </li>
-                    ))}
-                </ol>
-            ) : <Empty icon="history">No events yet.</Empty>}
+        <Panel title="Audit log" icon="history" bodyClassName="p-0"
+            description={`Changes to people, roles, invitations and settings${data?.historyDays ? `, kept for ${data.historyDays} days on your plan` : ""}.`}
+            action={kinds.length > 1 && <div className="w-44"><Select value={filter} onChange={setFilter} ariaLabel="Filter by type" className="h-8" options={[{ value: "all", label: "All activity" }, ...kinds.map((k) => ({ value: k, label: k }))]} /></div>}>
+            {shown.length ? (
+                <div className="overflow-x-auto">
+                    <table className="w-full min-w-[620px] text-left">
+                        <thead className="border-b border-line-soft bg-white/[0.015] text-[13px] text-faint">
+                            <tr>{["Type", "What happened", "By", "When"].map((h) => <th key={h} className="px-4 py-2.5 font-medium">{h}</th>)}</tr>
+                        </thead>
+                        <tbody className="divide-y divide-line-soft">
+                            {shown.map((e, i) => (
+                                <tr key={e._id} className="transition-colors hover:bg-white/[0.02]">
+                                    <td className="px-4 py-2.5 whitespace-nowrap">
+                                        <span className="flex items-center gap-2.5"><span className={`tile h-7 w-7 rounded-md ${e.tile}`}><Icon name={e.icon} className="text-[16px]" /></span><span className="text-[14px] text-zinc-300">{e.label}</span></span>
+                                    </td>
+                                    <td className="px-4 py-2.5 text-[14.5px] text-zinc-200">{e.text}</td>
+                                    <td className="px-4 py-2.5 whitespace-nowrap"><span className="flex items-center gap-2 text-[14px] text-muted"><Avatar user={e.actor} size="h-5 w-5 text-[9.5px]" />{e.actor?.fullName || "Someone"}</span></td>
+                                    <td className="px-4 py-2.5 text-[13.5px] whitespace-nowrap text-faint tabular-nums" title={dayOf(e.createdAt)}>
+                                        {(i === 0 || dayOf(shown[i - 1].createdAt) !== dayOf(e.createdAt)) ? new Date(e.createdAt).toLocaleString(undefined, { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) : new Date(e.createdAt).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            ) : <Empty icon="history" title="Nothing recorded yet">Role changes, invitations and removals will be listed here.</Empty>}
         </Panel>
     );
 }
@@ -350,13 +429,20 @@ function AuditTab() {
 // ---------- Settings ----------
 
 function SettingsTab({ onChange }) {
-    const { organization, can, isOwner, refresh } = useAuth();
+    const { organization, can, isOwner, refresh, applySession } = useAuth();
     const toast = useToast();
     const navigate = useNavigate();
     const members = useApi(isOwner ? "/org/members" : null);
     const [form, setForm] = useState({ name: organization.name, description: organization.description || "" });
     const [newOwner, setNewOwner] = useState("");
+    const [confirmName, setConfirmName] = useState("");
     const [error, setError] = useState("");
+
+    // After leaving or deleting, the server switches to another organization if there is one.
+    const goToNextOrg = (session) => {
+        applySession(session);
+        navigate(session.organization ? "/dashboard" : "/welcome", { replace: true });
+    };
 
     const save = async (event) => {
         event.preventDefault();
@@ -385,51 +471,75 @@ function SettingsTab({ onChange }) {
     const leave = async () => {
         if (!confirm(`Leave ${organization.name}? You will lose access to all its projects.`)) return;
         try {
-            await api("/org/leave", { method: "POST" });
-            await refresh();
-            navigate("/welcome", { replace: true });
+            const session = await api("/org/leave", { method: "POST" });
+            toast.success(`You left ${organization.name}`);
+            goToNextOrg(session);
         } catch (e) {
             toast.error("Couldn't leave", e.message);
         }
     };
 
+    const deleteOrg = async () => {
+        try {
+            const session = await api("/org", { method: "DELETE", body: { confirmName } });
+            toast.success(`${organization.name} was deleted`);
+            goToNextOrg(session);
+        } catch (e) {
+            toast.error("Couldn't delete", e.message);
+        }
+    };
+
+    const dirty = form.name !== organization.name || form.description !== (organization.description || "");
+
     return (
-        <div className="grid gap-6 xl:grid-cols-[1fr_400px]">
-            <Panel title="Organization profile" description={can("org.manage") ? "Shown to everyone in your organization." : "Your role can't edit these details."}>
+        <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_400px]">
+            <Panel title="Organization profile" icon="apartment" description={can("org.manage") ? "Shown to everyone in your organization." : "Your role can view these details but not edit them."}>
                 <form onSubmit={save} className="space-y-5">
-                    <div className="flex items-center gap-4">
-                        <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/35 to-accent/15 text-2xl font-semibold text-primary ring-1 ring-primary/25">
-                            {form.name[0]?.toUpperCase() || "?"}
-                        </span>
-                        <div>
-                            <p className="font-medium text-white">{form.name || "Organization"}</p>
-                            <p className="text-xs text-faint">Created {formatDate(organization.createdAt)}</p>
-                        </div>
-                    </div>
                     <Field label="Name">
-                        <Input icon="corporate_fare" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} disabled={!can("org.manage")} required maxLength={80} aria-label="Organization name" />
+                        <Input icon="apartment" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} disabled={!can("org.manage")} required maxLength={80} aria-label="Organization name" />
                     </Field>
                     <Field label="Description" hint={`${form.description.length}/250`}>
                         <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} disabled={!can("org.manage")} maxLength={250} className="field" placeholder="What does your organization do?" aria-label="Description" />
                     </Field>
                     <ErrorText>{error}</ErrorText>
-                    {can("org.manage") && <div className="flex justify-end border-t border-line-soft pt-5"><button className="btn-primary"><Icon name="check" className="text-[18px]" />Save changes</button></div>}
+                    {can("org.manage") && (
+                        <div className="flex items-center justify-between border-t border-line-soft pt-4">
+                            <p className="text-[13.5px] text-faint">Created {formatDate(organization.createdAt)}</p>
+                            <button disabled={!dirty} className="btn-primary"><Icon name="check" className="text-[17px]" />Save changes</button>
+                        </div>
+                    )}
                 </form>
             </Panel>
 
-            <div className="space-y-6">
+            <div className="space-y-4">
                 {isOwner ? (
-                    <Panel title="Transfer ownership" description="Hand the Owner role to someone else. You'll take over their current role.">
+                    <Panel title="Transfer ownership" icon="swap_horiz" description="Hand the Owner role to someone else. You'll take over their current role.">
                         <div className="space-y-3">
                             <Select value={newOwner} onChange={setNewOwner} ariaLabel="New owner" placeholder="Choose a person"
                                 options={(members.data?.members || []).filter((m) => !m.role.isSystem).map((m) => ({ value: m.user._id, label: m.user.fullName, user: m.user, hint: m.role.name }))} />
-                            <button disabled={!newOwner} onClick={transfer} className="btn-secondary w-full"><Icon name="swap_horiz" className="text-[18px]" />Transfer ownership</button>
+                            <button disabled={!newOwner} onClick={transfer} className="btn-secondary w-full"><Icon name="swap_horiz" className="text-[17px]" />Transfer ownership</button>
                         </div>
                     </Panel>
                 ) : (
-                    <Panel title="Leave organization" description="You'll lose access to its projects. Projects you lead go to the Owner.">
-                        <button onClick={leave} className="btn-danger w-full"><Icon name="logout" className="text-[18px]" />Leave {organization.name}</button>
-                    </Panel>
+                    <section className="card border-danger/25">
+                        <div className="border-b border-danger/15 px-4 py-3"><h3 className="flex items-center gap-2 text-[15px] font-semibold text-danger"><Icon name="warning" className="text-[18px]" />Leave organization</h3></div>
+                        <div className="space-y-3 p-4">
+                            <p className="text-[14.5px] text-muted">You'll lose access to its projects. Projects you lead go to the Owner.</p>
+                            <button onClick={leave} className="btn-danger w-full"><Icon name="logout" className="text-[17px]" />Leave {organization.name}</button>
+                        </div>
+                    </section>
+                )}
+                {isOwner && (
+                    <section className="card border-danger/25">
+                        <div className="border-b border-danger/15 px-4 py-3"><h3 className="flex items-center gap-2 text-[15px] font-semibold text-danger"><Icon name="warning" className="text-[18px]" />Delete organization</h3></div>
+                        <div className="space-y-3 p-4">
+                            <p className="text-[14.5px] text-muted">Permanently deletes every project, task, file, message and role in it. People keep their accounts. This can't be undone.</p>
+                            <Field label={<>Type <span className="font-semibold text-zinc-100">{organization.name}</span> to confirm</>}>
+                                <Input icon="warning" value={confirmName} onChange={(e) => setConfirmName(e.target.value)} placeholder={organization.name} aria-label="Organization name to confirm" />
+                            </Field>
+                            <button disabled={confirmName !== organization.name} onClick={deleteOrg} className="btn-danger w-full"><Icon name="delete_forever" className="text-[17px]" />Delete {organization.name}</button>
+                        </div>
+                    </section>
                 )}
             </div>
         </div>
@@ -443,39 +553,62 @@ export default function Organization() {
     const [params, setParams] = useSearchParams();
     const roles = useApi("/org/roles");
     const summary = useApi("/org");
+    const members = useApi("/org/members");
 
+    const counts = summary.data?.counts;
     const tabs = [
-        { value: "people", label: "People", icon: "group", count: summary.data?.counts.members },
-        { value: "roles", label: "Roles", icon: "badge", count: summary.data?.counts.roles },
+        { value: "people", label: "People", icon: "group", count: counts?.members },
+        { value: "roles", label: "Roles", icon: "badge", count: counts?.roles },
         can("members.invite") && { value: "invitations", label: "Invitations", icon: "mail" },
         { value: "audit", label: "Audit log", icon: "history" },
         { value: "settings", label: "Settings", icon: "tune" }
     ].filter(Boolean);
     const tab = tabs.some((t) => t.value === params.get("tab")) ? params.get("tab") : "people";
     const roleList = roles.data?.roles || [];
-    const refreshAll = () => { roles.reload(); summary.reload(); };
+    const refreshAll = () => { roles.reload(); summary.reload(); members.reload(); };
+    const everyone = members.data?.members || [];
+    const owner = everyone.find((m) => m.role.isSystem)?.user;
+    const customRoles = roleList.filter((r) => r.isCustom).length;
+    const planName = organization.plan?.name || "Starter";
 
     return (
         <>
-            <PageHeader eyebrow="Organization" title={organization.name} subtitle={organization.description || "Manage people, roles and permissions."}>
-                <span className="chip border-primary/30 bg-primary/10 py-1 text-primary"><Icon name="badge" className="text-[14px]" />You are {role.name}</span>
-                {can("members.invite") && <button onClick={() => setParams({ tab: "invitations" })} className="btn-primary"><Icon name="person_add" className="text-[18px]" />Invite people</button>}
-            </PageHeader>
+            {/* Identity */}
+            <header className="card relative overflow-hidden">
+                <div className="pointer-events-none absolute inset-0" aria-hidden="true" style={{ background: "radial-gradient(480px 200px at 0% 0%, rgb(54 198 181 / 0.13), transparent 70%)" }} />
+                <div className="relative flex flex-col gap-5 p-5 sm:p-6 lg:flex-row lg:items-center">
+                    <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-accent to-[#2a9d7c] text-[28px] font-bold text-primary-ink shadow-[inset_0_1px_0_rgb(255_255_255/0.3)]">
+                        {organization.name.trim()[0]?.toUpperCase()}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                            <h1 className="text-[26px] leading-tight font-semibold text-ink">{organization.name}</h1>
+                            <Badge tone={planName === "Starter" ? "steel" : "green"} dot>{planName} plan</Badge>
+                        </div>
+                        <p className="mt-1 max-w-2xl text-[15px] text-muted">{organization.description || "Manage people, roles and permissions for your organization."}</p>
+                        <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-[14px] text-muted">
+                            {owner && <span className="inline-flex items-center gap-2"><Avatar user={owner} size="h-5 w-5 text-[9.5px]" />Owned by <span className="font-medium text-zinc-200">{owner.fullName}</span></span>}
+                            <span className="inline-flex items-center gap-1.5"><Icon name="event" className="text-[15px] text-faint" />Created {formatDate(organization.createdAt)}</span>
+                            <span className="inline-flex items-center gap-1.5"><Icon name="badge" className="text-[15px] text-faint" />You are <span className="font-medium text-accent">{role.name}</span></span>
+                        </div>
+                    </div>
+                    {can("members.invite") && <button onClick={() => setParams({ tab: "invitations" })} className="btn-primary shrink-0"><Icon name="person_add" className="text-[18px]" />Invite people</button>}
+                </div>
+            </header>
 
-            {summary.data && (
-                <section className="mt-8 grid grid-cols-3 gap-4">
-                    <StatCard label="People" value={summary.data.counts.members} icon="group" tone="primary" />
-                    <StatCard label="Roles" value={summary.data.counts.roles} icon="badge" tone="accent" />
-                    <StatCard label="Projects" value={summary.data.counts.projects} icon="folder_open" tone="success" />
-                </section>
-            )}
+            <section className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <StatCard label="People" value={counts?.members ?? "–"} icon="group" tone="primary" hint="Members of this organization"
+                    visual={everyone.length > 0 && <AvatarStack users={everyone.map((m) => m.user)} max={4} size="h-7 w-7 text-[11.5px]" />} />
+                <StatCard label="Roles" value={counts?.roles ?? "–"} icon="badge" tone="steel" hint={roleList.length ? `${roleList.length - customRoles} built-in · ${customRoles} custom` : " "} />
+                <StatCard label="Projects" value={counts?.projects ?? "–"} icon="folder" tone="success" hint="Across the whole organization" />
+            </section>
 
             <div className="mt-6"><Tabs items={tabs} value={tab} onChange={(t) => setParams({ tab: t })} /></div>
 
-            <div className="mt-6">
-                {roles.loading ? <Spinner /> : (
+            <div className="mt-5">
+                {roles.loading && !roles.data ? <Spinner /> : (
                     <>
-                        {tab === "people" && <PeopleTab roles={roleList} onChange={refreshAll} />}
+                        {tab === "people" && <PeopleTab roles={roleList} members={members} onChange={refreshAll} />}
                         {tab === "roles" && <RolesTab roles={roleList} reload={refreshAll} />}
                         {tab === "invitations" && <InvitationsTab roles={roleList} />}
                         {tab === "audit" && <AuditTab />}

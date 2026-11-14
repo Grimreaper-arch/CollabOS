@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 const notificationSchema = new mongoose.Schema(
     {
         recipient: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+        // Which organization it belongs to, so opening it can switch there first. Empty for personal ones.
+        org: { type: mongoose.Schema.Types.ObjectId, ref: "Organization", default: null },
         text: { type: String, required: true },
         link: { type: String, default: "" },
         // Drives the icon in the UI: info, task, reminder, overdue, people.

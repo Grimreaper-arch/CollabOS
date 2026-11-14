@@ -9,7 +9,9 @@ const messageSchema = new mongoose.Schema(
         sender: { type: ObjectId, ref: "User", required: true },
         project: { type: ObjectId, ref: "Project", default: null },
         recipient: { type: ObjectId, ref: "User", default: null },
-        text: { type: String, required: true, trim: true, maxlength: 2000 }
+        text: { type: String, required: true, trim: true, maxlength: 2000 },
+        // Direct messages only: when the recipient saw it (read receipts).
+        readAt: { type: Date, default: null }
     },
     { timestamps: true }
 );

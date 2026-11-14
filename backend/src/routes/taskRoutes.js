@@ -16,6 +16,7 @@ router.route("/:id")
     .delete(tasks.deleteTask);
 
 router.patch("/:id/status", tasks.updateStatus);
+router.patch("/:id/stage", tasks.moveTask);
 
 router.route("/:id/comments")
     .get(tasks.listComments)

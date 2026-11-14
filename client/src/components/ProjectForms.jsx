@@ -6,7 +6,7 @@ import { Avatar, DatePicker, ErrorText, Field, Icon, Input, Segmented, Select } 
 import { plural, toDateInput } from "../utils/format";
 
 const PRIORITY_OPTIONS = [
-    { value: "low", label: "Low", dot: "bg-success" },
+    { value: "low", label: "Low", dot: "bg-steel" },
     { value: "medium", label: "Medium", dot: "bg-warning" },
     { value: "high", label: "High", dot: "bg-danger" }
 ];
@@ -55,14 +55,14 @@ export function ProjectForm({ project, onSaved, onCancel }) {
             <ErrorText>{error}</ErrorText>
             <div className="flex justify-end gap-2 pt-2">
                 {onCancel && <button type="button" onClick={onCancel} className="btn-ghost">Cancel</button>}
-                <button disabled={busy} className="btn-primary">{project ? "Save changes" : <><Icon name="add" className="text-[18px]" />Create project</>}</button>
+                <button disabled={busy} className="btn-primary">{project ? "Save changes" : <><Icon name="add" className="text-[20px]" />Create project</>}</button>
             </div>
         </form>
     );
 }
 
 // Toggleable avatar chips for picking people.
-function PeoplePicker({ people, selected, onChange }) {
+export function PeoplePicker({ people, selected, onChange }) {
     const toggle = (id) => onChange(selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id]);
     const all = people.length > 0 && selected.length === people.length;
     return (
@@ -72,16 +72,16 @@ function PeoplePicker({ people, selected, onChange }) {
                     const on = selected.includes(p._id);
                     return (
                         <button key={p._id} type="button" onClick={() => toggle(p._id)} aria-pressed={on}
-                            className={`flex items-center gap-2 rounded-full border py-1 pr-3 pl-1 text-[13px] transition ${on ? "border-primary/50 bg-primary/12 text-white" : "border-line bg-white/[0.02] text-muted hover:border-[#33333c] hover:text-zinc-200"}`}>
-                            <Avatar user={p} size="h-6 w-6 text-[9px]" />
+                            className={`flex items-center gap-2 rounded-full border py-1 pr-3 pl-1 text-[14.5px] transition-colors ${on ? "border-accent/50 bg-accent/12 text-white" : "border-line bg-white/[0.02] text-muted hover:border-line-strong hover:text-zinc-200"}`}>
+                            <Avatar user={p} size="h-6 w-6 text-[10.5px]" />
                             {p.fullName}
-                            {on && <Icon name="check" className="text-base text-primary" />}
+                            {on && <Icon name="check" className="text-[17px] text-accent" />}
                         </button>
                     );
                 })}
             </div>
             {people.length > 1 && (
-                <button type="button" onClick={() => onChange(all ? [] : people.map((p) => p._id))} className="mt-2 text-xs text-primary hover:underline">
+                <button type="button" onClick={() => onChange(all ? [] : people.map((p) => p._id))} className="mt-2 text-[13px] text-accent hover:underline">
                     {all ? "Clear selection" : "Select everyone"}
                 </button>
             )}
@@ -115,9 +115,9 @@ export function AddMembersForm({ project, onDone }) {
         <form onSubmit={submit} className="space-y-4">
             {candidates.length
                 ? <PeoplePicker people={candidates} selected={selected} onChange={setSelected} />
-                : <p className="text-sm text-muted">Everyone in your organization is already in this project.</p>}
+                : <p className="text-[15px] text-muted">Everyone in your organization is already in this project.</p>}
             <ErrorText>{error}</ErrorText>
-            <button disabled={!selected.length} className="btn-primary w-full"><Icon name="person_add" className="text-[18px]" />Add to project</button>
+            <button disabled={!selected.length} className="btn-primary w-full"><Icon name="person_add" className="text-[17px]" />Add to project</button>
         </form>
     );
 }
@@ -164,7 +164,7 @@ export function TaskForm({ projects = [], projectId, onDone, onCancel }) {
         <form onSubmit={submit} className="space-y-4">
             <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} maxLength={100} required
                 placeholder="What needs to be done?" aria-label="Task title"
-                className="w-full bg-transparent text-lg font-medium text-white outline-none placeholder:text-faint" />
+                className="w-full rounded-lg border border-transparent bg-transparent px-0 text-[20px] font-semibold text-ink outline-none placeholder:font-medium placeholder:text-faint" />
             <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} maxLength={500}
                 placeholder="Add details, links or acceptance criteria (optional)" aria-label="Task details" className="field min-h-20" />
 
@@ -185,14 +185,14 @@ export function TaskForm({ projects = [], projectId, onDone, onCancel }) {
 
             <Field label="Assign to">
                 {!selected
-                    ? <p className="rounded-xl border border-dashed border-line px-3 py-3 text-[13px] text-faint">Pick a project to see its people.</p>
+                    ? <p className="rounded-lg border border-dashed border-line px-3 py-3 text-[14.5px] text-faint">Pick a project to see its people.</p>
                     : <PeoplePicker people={people} selected={assignees} onChange={setAssignees} />}
             </Field>
 
             <ErrorText>{error}</ErrorText>
             <div className="flex items-center justify-end gap-2 border-t border-line-soft pt-4">
                 {onCancel && <button type="button" onClick={onCancel} className="btn-ghost">Cancel</button>}
-                <button disabled={busy || !selected} className="btn-primary"><Icon name="send" className="text-[18px]" />{busy ? "Assigning…" : "Assign task"}</button>
+                <button disabled={busy || !selected} className="btn-primary"><Icon name="send" className="text-[17px]" />{busy ? "Assigning…" : "Assign task"}</button>
             </div>
         </form>
     );

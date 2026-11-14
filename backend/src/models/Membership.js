@@ -12,9 +12,8 @@ const membershipSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-// For now a user belongs to one organization. To allow several later,
-// change this to a compound { user, org } index and add an organization switcher.
-membershipSchema.index({ user: 1 }, { unique: true });
+// A user can belong to many organizations, but only once to each.
+membershipSchema.index({ user: 1, org: 1 }, { unique: true });
 membershipSchema.index({ org: 1, role: 1 });
 
 export default mongoose.model("Membership", membershipSchema);

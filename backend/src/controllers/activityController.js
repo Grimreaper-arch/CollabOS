@@ -6,6 +6,7 @@ export async function listActivity(req, res) {
     const limit = Math.min(Number(req.query.limit) || 10, 50);
     const activity = await Activity.find({ org: req.org._id, project: { $in: await visibleProjectIds(req) } })
         .populate("project", "name")
+        .populate("actor", "fullName avatar")
         .sort({ createdAt: -1 })
         .limit(limit);
     res.json({ activity });

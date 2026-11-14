@@ -1,5 +1,7 @@
 import "./config/env.js";
+import http from "node:http";
 import app from "./app.js";
+import { initRealtime } from "./services/realtime.js";
 import { connectDB } from "./config/db.js";
 import { startReminderScheduler } from "./services/reminders.js";
 
@@ -12,7 +14,10 @@ if (!process.env.JWT_SECRET) {
 
 connectDB(process.env.MONGO_URI)
     .then(() => {
-        app.listen(PORT, () => console.log(`CollabOS API running on http://localhost:${PORT}`));
+        // One HTTP server for both the REST API (Express) and real-time updates (Socket.io).
+        const server = http.createServer(app);
+        initRealtime(server);
+        server.listen(PORT, () => console.log(`CollabOS API running on http://localhost:${PORT}`));
         startReminderScheduler();
     })
     .catch((error) => {

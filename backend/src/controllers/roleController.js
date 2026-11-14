@@ -4,6 +4,7 @@ import Invitation from "../models/Invitation.js";
 import ApiError from "../utils/ApiError.js";
 import { assertBelowMe, assertGrantable } from "../utils/rbac.js";
 import { logAudit } from "../utils/events.js";
+import { assertWithinLimit } from "../services/plans.js";
 
 // GET /api/org/roles — every member can see the roles (needed for invite forms and the people list).
 export async function listRoles(req, res) {
@@ -43,7 +44,8 @@ export async function createRole(req, res) {
     assertBelowMe(req, data.level, "create roles");
     assertGrantable(req, data.permissions);
 
-    const role = await Role.create({ ...data, org: req.org._id });
+    await assertWithinLimit(req.org, "customRoles");
+    const role = await Role.create({ ...data, org: req.org._id, isCustom: true });
     await logAudit(req.org._id, req.user._id, `${req.user.fullName} created the role ${role.name}.`);
     res.status(201).json({ role });
 }

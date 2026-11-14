@@ -8,6 +8,8 @@ import { sessionPayload } from "../services/orgService.js";
 import { OWNER_LEVEL } from "../config/permissions.js";
 import { assertBelowMe } from "../utils/rbac.js";
 import { logAudit, notify } from "../utils/events.js";
+import { sendInvitationEmail } from "../services/mailer.js";
+import { assertWithinLimit, planError, remaining, limitsOf } from "../services/plans.js";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -25,6 +27,7 @@ export async function sendInvitations(req, res) {
 
     const invited = [];
     const skipped = [];
+    let seatsLeft = await remaining(req.org, "members");
     for (const email of emails) {
         if (!EMAIL.test(email)) { skipped.push(`${email} (not a valid email)`); continue; }
 
@@ -32,10 +35,17 @@ export async function sendInvitations(req, res) {
         if (user && (await Membership.exists({ user: user._id, org: req.org._id }))) { skipped.push(`${email} (already a member)`); continue; }
         if (await Invitation.exists({ org: req.org._id, email, status: "pending", expiresAt: { $gt: new Date() } })) { skipped.push(`${email} (already invited)`); continue; }
 
+        if (seatsLeft <= 0) { skipped.push(`${email} (plan limit reached)`); continue; }
+        seatsLeft -= 1;
+
         await Invitation.create({ org: req.org._id, email, role: role._id, invitedBy: req.user._id });
-        if (user) await notify(user._id, `${req.user.fullName} invited you to join ${req.org.name} as ${role.name}.`, "/welcome", "people");
+        if (user) await notify(user._id, `${req.user.fullName} invited you to join ${req.org.name} as ${role.name}.`, "/join", "people");
+        await sendInvitationEmail({ email, orgName: req.org.name, roleName: role.name, inviterName: req.user.fullName, hasAccount: Boolean(user) });
         invited.push(email);
     }
+
+    // Nobody could be invited because of the plan: show the upgrade prompt.
+    if (!invited.length && skipped.some((s) => s.includes("plan limit"))) throw planError(req.org, "members", limitsOf(req.org).members);
 
     if (invited.length) {
         await logAudit(req.org._id, req.user._id, `${req.user.fullName} invited ${invited.join(", ")} as ${role.name}.`);
@@ -87,17 +97,25 @@ export async function myInvitations(req, res) {
 
 // POST /api/invitations/:id/accept
 export async function acceptInvitation(req, res) {
-    if (req.org) throw new ApiError(400, `You already belong to ${req.org.name}. Leave it before joining another organization.`);
     const invitation = await getMyInvitation(req);
+    if (await Membership.exists({ user: req.user._id, org: invitation.org._id })) {
+        throw new ApiError(400, `You are already a member of ${invitation.org.name}.`);
+    }
+    // The invitation already holds a seat, so only count current members here.
+    const memberLimit = limitsOf(invitation.org).members;
+    if (memberLimit !== null && (await Membership.countDocuments({ org: invitation.org._id })) >= memberLimit) {
+        throw new ApiError(402, `${invitation.org.name} is full on its current plan. Ask its Owner to upgrade.`, "PLAN_LIMIT");
+    }
 
     await Membership.create({ user: req.user._id, org: invitation.org._id, role: invitation.role._id });
     invitation.status = "accepted";
     await invitation.save();
 
-    await notify(invitation.invitedBy, `${req.user.fullName} joined ${invitation.org.name} as ${invitation.role.name}.`, "/organization", "people");
+    await notify(invitation.invitedBy, `${req.user.fullName} joined ${invitation.org.name} as ${invitation.role.name}.`, "/organization", "people", invitation.org._id);
     await logAudit(invitation.org._id, req.user._id, `${req.user.fullName} accepted the invitation and joined as ${invitation.role.name}.`);
 
-    await loadAccess(req);
+    // Switch to the organization they just joined.
+    await loadAccess(req, invitation.org._id);
     res.json(sessionPayload(req));
 }
 
@@ -106,6 +124,6 @@ export async function declineInvitation(req, res) {
     const invitation = await getMyInvitation(req);
     invitation.status = "declined";
     await invitation.save();
-    await notify(invitation.invitedBy, `${req.user.fullName} declined the invitation to ${invitation.org.name}.`, "", "people");
+    await notify(invitation.invitedBy, `${req.user.fullName} declined the invitation to ${invitation.org.name}.`, "", "people", invitation.org._id);
     res.json({ message: "Invitation declined." });
 }

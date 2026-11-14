@@ -7,6 +7,8 @@ import { can } from "../middleware/auth.js";
 import { canManageProject, canManageTask, getProjectFor, same } from "../utils/access.js";
 import { logActivity, notify } from "../utils/events.js";
 import { UPLOAD_ROOT } from "../middleware/upload.js";
+import { assertStorageFor } from "../services/plans.js";
+import { matchesType } from "../utils/fileSignature.js";
 
 const filePath = (file) => path.join(UPLOAD_ROOT, "files", file.storedName);
 
@@ -17,6 +19,10 @@ export async function uploadProjectFile(req, res) {
     if (!req.file) throw new ApiError(400, "Choose a file to upload.");
 
     try {
+        // The browser's claimed type must match the file's real contents.
+        if (!(await matchesType(req.file.path, req.file.mimetype))) {
+            throw new ApiError(400, "This file's contents don't match its type. Renamed files can't be uploaded.");
+        }
         const project = await getProjectFor(req, req.params.id);
 
         let task = null;
@@ -30,6 +36,9 @@ export async function uploadProjectFile(req, res) {
             throw new ApiError(403, `Your role (${req.role.name}) can't upload shared project files.`);
         }
 
+        // The organization's total storage is limited by its plan.
+        await assertStorageFor(req.org, req.file.size);
+
         const file = await File.create({
             project: project._id,
             task: task?._id || null,
@@ -42,7 +51,7 @@ export async function uploadProjectFile(req, res) {
 
         await logActivity(project, req.user._id, `${req.user.fullName} uploaded ${file.originalName}${task ? ` for "${task.title}"` : ""}.`);
         if (task && !same(task.assignedBy, req.user._id)) {
-            await notify(task.assignedBy, `${req.user.fullName} submitted ${file.originalName} for "${task.title}".`, `/projects/${project._id}`, "task");
+            await notify(task.assignedBy, `${req.user.fullName} submitted ${file.originalName} for "${task.title}".`, `/projects/${project._id}`, "task", project.org);
         }
 
         res.status(201).json({ file: await file.populate("uploadedBy", "fullName") });
