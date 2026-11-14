@@ -5,7 +5,8 @@ export const PERMISSION_GROUPS = [
         group: "Organization",
         permissions: [
             { key: "org.manage", label: "Edit organization details" },
-            { key: "org.analytics", label: "View organization-wide analytics" }
+            { key: "org.analytics", label: "View organization-wide analytics" },
+            { key: "billing.manage", label: "Change the plan and see payments" }
         ]
     },
     {

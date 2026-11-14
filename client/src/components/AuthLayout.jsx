@@ -1,76 +1,38 @@
-import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { useRef, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { Icon } from "./ui";
 
-const tabClass = ({ isActive }) =>
-    `flex-1 rounded-lg py-2 text-center text-sm font-medium transition ${isActive ? "bg-white/[0.08] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]" : "text-muted hover:text-zinc-200"}`;
-
-// Floating product snippets on the left side of the auth screens.
-function Showcase() {
+// Layout shared by the sign-in, sign-up, verification and password reset pages: one centred
+// column, nothing competing with the form. (`title` and `text` are accepted for older callers.)
+export default function AuthLayout({ heading, subheading, tabs = true, children }) {
+    const { pathname } = useLocation();
+    const signup = pathname.startsWith("/signup");
     return (
-        <div className="relative mx-auto h-[340px] w-full max-w-md">
-            <div className="card absolute top-0 left-0 w-[78%] -rotate-2 p-4 shadow-2xl shadow-black/50">
-                <div className="flex items-center gap-2 text-xs text-muted"><Icon name="checklist" className="text-base text-primary" />Website Redesign</div>
-                {[["Design the database schema", true], ["Build login API", false], ["Fix navbar on mobile", false]].map(([t, done]) => (
-                    <div key={t} className="mt-3 flex items-center gap-2.5">
-                        <span className={`flex h-4 w-4 items-center justify-center rounded-full border-2 ${done ? "border-success bg-success text-black" : "border-[#3a3a44]"}`}>{done && <Icon name="check" className="text-[11px]" />}</span>
-                        <span className={`text-[13px] ${done ? "text-faint line-through" : "text-zinc-200"}`}>{t}</span>
-                    </div>
-                ))}
-            </div>
-            <div className="card absolute top-28 right-0 w-[56%] rotate-2 p-4 shadow-2xl shadow-black/50">
-                <p className="text-xs text-muted">Completion</p>
-                <p className="mt-1 font-mono text-3xl font-semibold text-white">72%</p>
-                <div className="mt-3 flex h-12 items-end gap-1.5">
-                    {[30, 55, 40, 70, 60, 85, 72].map((h, i) => <span key={i} className={`flex-1 rounded-sm ${i === 6 ? "bg-primary" : "bg-white/10"}`} style={{ height: `${h}%` }} />)}
-                </div>
-            </div>
-            <div className="card absolute bottom-0 left-8 flex items-center gap-3 p-3 pr-5 shadow-2xl shadow-black/50">
-                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-warning/15 text-warning"><Icon name="alarm" /></span>
-                <div>
-                    <p className="text-[13px] font-medium text-white">“Build login API” is due tomorrow</p>
-                    <p className="text-xs text-faint">Reminder · just now</p>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-// Split-screen layout shared by the login and signup pages.
-export default function AuthLayout({ heading, subheading, title, text, children }) {
-    return (
-        <div className="flex min-h-screen bg-page">
-            <section className="relative hidden w-1/2 flex-col justify-between overflow-hidden border-r border-line-soft bg-sidebar p-12 lg:flex xl:p-16">
-                <div className="dot-bg pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_70%)]" />
-                <div className="pointer-events-none absolute -top-40 -left-20 h-[420px] w-[420px] rounded-full bg-primary/20 blur-[120px]" />
-                <div className="pointer-events-none absolute -right-20 -bottom-40 h-[380px] w-[380px] rounded-full bg-accent/10 blur-[120px]" />
-
-                <Link to="/" className="relative z-10 flex items-center gap-3">
-                    <img src="/logo.svg" alt="" className="h-9 w-9" />
-                    <span className="text-xl font-semibold tracking-tight">CollabOS</span>
+        <div className="flex min-h-screen flex-col bg-page">
+            <header className="flex h-14 items-center px-6">
+                <Link to="/" className="flex items-center gap-2.5">
+                    <img src="/logo.svg" alt="" className="h-6 w-6" />
+                    <span className="text-[16px] font-semibold text-white">CollabOS</span>
                 </Link>
-                <div className="relative z-10 my-10"><Showcase /></div>
-                <div className="relative z-10 max-w-lg">
-                    <h2 className="text-4xl leading-[1.1] font-semibold tracking-tight text-white">{title}</h2>
-                    <p className="mt-4 text-[15px] leading-relaxed text-muted">{text}</p>
-                </div>
-            </section>
+            </header>
 
-            <section className="flex w-full items-center justify-center px-6 py-12 lg:w-1/2">
-                <div className="w-full max-w-[400px] animate-slide-up">
-                    <Link to="/" className="mb-10 flex items-center gap-3 lg:hidden">
-                        <img src="/logo.svg" alt="" className="h-8 w-8" />
-                        <span className="text-lg font-semibold">CollabOS</span>
-                    </Link>
-                    <h1 className="text-[28px] font-semibold tracking-tight text-white">{heading}</h1>
+            <main className="flex flex-1 items-start justify-center px-6 pt-[8vh] pb-16">
+                <div className="w-full max-w-[380px]">
+                    <h1 className="text-[24px] leading-tight font-semibold text-white">{heading}</h1>
                     {subheading && <p className="mt-1.5 text-[15px] text-muted">{subheading}</p>}
-                    <div className="mt-8 flex rounded-xl border border-line bg-inset p-1">
-                        <NavLink to="/login" className={tabClass}>Sign in</NavLink>
-                        <NavLink to="/signup" className={tabClass}>Create account</NavLink>
-                    </div>
                     {children}
+                    {tabs && (
+                        <p className="mt-6 text-[14.5px] text-muted">
+                            {signup ? "Already have an account? " : "New to CollabOS? "}
+                            <Link to={signup ? "/login" : "/signup"} className="font-medium text-zinc-100 underline decoration-white/25 underline-offset-4 hover:decoration-white">
+                                {signup ? "Sign in" : "Create an account"}
+                            </Link>
+                        </p>
+                    )}
                 </div>
-            </section>
+            </main>
+
+            <footer className="px-6 py-5 text-[13.5px] text-faint">© {new Date().getFullYear()} CollabOS</footer>
         </div>
     );
 }
@@ -80,11 +42,92 @@ export function PasswordInput(props) {
     const [visible, setVisible] = useState(false);
     return (
         <div className="relative">
-            <Icon name="lock" className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-[18px] text-faint" />
-            <input {...props} type={visible ? "text" : "password"} className="field pr-11 pl-10" required />
+            <Icon name="lock" className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-[18px] text-faint" />
+            <input {...props} type={visible ? "text" : "password"} className="field pr-10 pl-9" required />
             <button type="button" onClick={() => setVisible((v) => !v)} className="absolute top-1/2 right-2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-faint hover:text-white" aria-label={visible ? "Hide password" : "Show password"}>
-                <Icon name={visible ? "visibility" : "visibility_off"} className="text-[18px]" />
+                <Icon name={visible ? "visibility" : "visibility_off"} className="text-[20px]" />
             </button>
+        </div>
+    );
+}
+
+// Six boxes for a one-time code. Typing moves to the next box; pasting fills them all.
+// Calls onComplete(code) once all six digits are entered.
+export function CodeInput({ value, onChange, onComplete, disabled }) {
+    const boxes = useRef([]);
+    const digits = Array.from({ length: 6 }, (_, i) => value[i] || "");
+
+    const set = (next) => {
+        const code = next.replace(/\D/g, "").slice(0, 6);
+        onChange(code);
+        if (code.length === 6) onComplete?.(code);
+        return code;
+    };
+
+    const type = (index, event) => {
+        const typed = event.target.value.replace(/\D/g, "");
+        if (!typed) return;
+        const code = set(value.slice(0, index) + typed + value.slice(index + typed.length));
+        boxes.current[Math.min(code.length, 5)]?.focus();
+    };
+
+    const key = (index, event) => {
+        if (event.key === "Backspace") {
+            event.preventDefault();
+            const at = digits[index] ? index : Math.max(0, index - 1);
+            set(value.slice(0, at) + value.slice(at + 1));
+            boxes.current[at]?.focus();
+        } else if (event.key === "ArrowLeft") boxes.current[index - 1]?.focus();
+        else if (event.key === "ArrowRight") boxes.current[index + 1]?.focus();
+    };
+
+    const paste = (event) => {
+        event.preventDefault();
+        const code = set(event.clipboardData.getData("text"));
+        boxes.current[Math.min(code.length, 5)]?.focus();
+    };
+
+    return (
+        <div className="flex justify-between gap-2" onPaste={paste}>
+            {digits.map((digit, i) => (
+                <input key={i} ref={(el) => (boxes.current[i] = el)} value={digit} disabled={disabled}
+                    onChange={(e) => type(i, e)} onKeyDown={(e) => key(i, e)} onFocus={(e) => e.target.select()}
+                    inputMode="numeric" autoComplete={i === 0 ? "one-time-code" : "off"} maxLength={6} aria-label={`Digit ${i + 1}`}
+                    autoFocus={i === 0}
+                    className="field h-12 w-full min-w-0 p-0 text-center text-[22px] font-semibold text-white tabular-nums" />
+            ))}
+        </div>
+    );
+}
+
+// "Continue with Google". Google sends the browser back to /login?google=signed-in with a
+// refresh cookie set; the login page then fetches the session.
+export function GoogleButton({ label = "Continue with Google" }) {
+    const [error, setError] = useState("");
+    const [busy, setBusy] = useState(false);
+    const start = async () => {
+        setBusy(true);
+        setError("");
+        try {
+            const response = await fetch("/api/google/login-url");
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message);
+            window.location.href = data.url;
+        } catch (e) {
+            setError(e.message || "Google sign-in isn't available.");
+            setBusy(false);
+        }
+    };
+    return (
+        <div className="mt-7">
+            <button type="button" onClick={start} disabled={busy} className="btn-secondary h-10 w-full">
+                <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" aria-hidden="true">
+                    <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.24 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.8 3.5 14.6 2.5 12 2.5 6.8 2.5 2.6 6.7 2.6 12s4.2 9.5 9.4 9.5c5.4 0 9-3.8 9-9.2 0-.6-.07-1.1-.16-1.6H12z" />
+                </svg>
+                {busy ? "Opening Google…" : label}
+            </button>
+            {error && <p className="mt-2 text-center text-[13px] text-danger">{error}</p>}
+            <div className="mt-5 flex items-center gap-3 text-[13.5px] text-faint"><span className="h-px flex-1 bg-line-soft" />or<span className="h-px flex-1 bg-line-soft" /></div>
         </div>
     );
 }

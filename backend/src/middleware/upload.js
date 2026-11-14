@@ -4,6 +4,7 @@ import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 import multer from "multer";
 import ApiError from "../utils/ApiError.js";
+import { limitsOf, planError } from "../services/plans.js";
 
 // backend/uploads, no matter which folder the server is started from.
 export const UPLOAD_ROOT = fileURLToPath(new URL("../../uploads", import.meta.url));
@@ -53,9 +54,15 @@ export const uploadAvatar = multer({
     fileFilter: allowTypes(IMAGE_TYPES, "Profile picture must be a PNG, JPG, WEBP or GIF image.")
 }).single("avatar");
 
-// Project files and task submissions: documents, images, zips. Max 10 MB, form field "file".
-export const uploadFile = multer({
-    storage: diskStorage("files"),
-    limits: { fileSize: 10 * 1024 * 1024 },
-    fileFilter: allowTypes(DOCUMENT_TYPES, "This file type is not allowed. Upload a PDF, Office document, image, text, CSV or ZIP file.")
-}).single("file");
+// Project files and task submissions: documents, images, zips. Form field "file".
+// The size limit depends on the organization's plan (10 MB on Starter), so Multer is set up per request.
+const fileStorage = diskStorage("files");
+const fileFilter = allowTypes(DOCUMENT_TYPES, "This file type is not allowed. Upload a PDF, Office document, image, text, CSV or ZIP file.");
+
+export function uploadFile(req, res, next) {
+    const maxFileBytes = limitsOf(req.org).maxFileBytes;
+    multer({ storage: fileStorage, limits: { fileSize: maxFileBytes }, fileFilter }).single("file")(req, res, (error) => {
+        if (error instanceof multer.MulterError && error.code === "LIMIT_FILE_SIZE") return next(planError(req.org, "maxFileBytes", maxFileBytes));
+        next(error);
+    });
+}

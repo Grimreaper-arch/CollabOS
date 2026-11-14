@@ -8,14 +8,15 @@ const router = Router();
 
 router.use(protect);
 
-// Anyone without an organization can create one and become its Owner.
+// Anyone can create an organization and become its Owner.
 router.post("/", org.createOrg);
 
 router.use(requireOrg);
 
 router.route("/")
     .get(org.getOrg)
-    .put(requirePermission("org.manage"), org.updateOrg);
+    .put(requirePermission("org.manage"), org.updateOrg)
+    .delete(org.deleteOrg);
 
 router.get("/permissions", org.listPermissions);
 router.get("/audit", org.auditLog);

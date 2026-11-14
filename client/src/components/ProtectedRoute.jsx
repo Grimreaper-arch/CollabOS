@@ -12,16 +12,16 @@ export default function ProtectedRoute() {
     return <Outlet />;
 }
 
+// Everything except the verification screen needs a verified email.
+export function RequireVerified() {
+    const { user } = useAuth();
+    return user.emailVerified ? <Outlet /> : <Navigate to="/verify-email" replace />;
+}
+
 // The app pages need an organization. Users without one go to the welcome screen.
 export function RequireOrg() {
     const { organization } = useAuth();
     return organization ? <Outlet /> : <Navigate to="/welcome" replace />;
-}
-
-// The welcome screen is only for users who don't have an organization yet.
-export function RequireNoOrg() {
-    const { organization } = useAuth();
-    return organization ? <Navigate to="/dashboard" replace /> : <Outlet />;
 }
 
 // For login/signup: logged-in users go straight in.

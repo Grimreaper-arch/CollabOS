@@ -4,6 +4,7 @@ import { uploadProjectFile, listProjectFiles } from "../controllers/fileControll
 import * as code from "../controllers/codeController.js";
 import { protect, requireOrg, requirePermission } from "../middleware/auth.js";
 import { uploadFile } from "../middleware/upload.js";
+import { runLimiter } from "../middleware/security.js";
 
 const router = Router();
 
@@ -31,6 +32,10 @@ router.route("/:id/files")
 router.route("/:id/code")
     .get(code.listFiles)
     .post(code.createFile);
+// Running code: runner status, run in Docker (C, C++, Java), run history.
+router.get("/:id/code/runner", code.runnerInfo);
+router.post("/:id/code/run", runLimiter, code.runCode);
+router.route("/:id/code/runs").get(code.listRuns).post(runLimiter, code.recordRun);
 router.route("/:id/code/:fileId")
     .get(code.getFile)
     .put(code.updateFile)

@@ -1,17 +1,13 @@
-import fs from "node:fs/promises";
-import path from "node:path";
 import Project from "../models/Project.js";
 import Task from "../models/Task.js";
-import Comment from "../models/Comment.js";
-import File from "../models/File.js";
-import Message from "../models/Message.js";
-import Activity from "../models/Activity.js";
 import Membership from "../models/Membership.js";
-import CodeFile from "../models/CodeFile.js";
+import Activity from "../models/Activity.js";
 import ApiError from "../utils/ApiError.js";
 import { canManageProject, getProjectFor, same, visibleProjectFilter } from "../utils/access.js";
 import { logActivity, notify } from "../utils/events.js";
-import { UPLOAD_ROOT } from "../middleware/upload.js";
+import { deleteProjects } from "../services/orgService.js";
+import { assertWithinLimit } from "../services/plans.js";
+import { joinProjectRoom, leaveProjectRoom } from "../services/realtime.js";
 
 const PERSON = "fullName email avatar";
 
@@ -24,10 +20,16 @@ const taskStats = (match) => Task.aggregate([
 // People who manage a project see all its tasks counted; members see only their own.
 async function withDetails(req, projects) {
     const ids = projects.map((p) => p._id);
-    const [all, mine] = await Promise.all([
+    const now = new Date();
+    const [all, mine, recent, late] = await Promise.all([
         taskStats({ project: { $in: ids } }),
-        taskStats({ project: { $in: ids }, assignee: req.user._id })
+        taskStats({ project: { $in: ids }, assignee: req.user._id }),
+        // Most recent activity per project, for "updated 2h ago".
+        Activity.aggregate([{ $match: { project: { $in: ids } } }, { $group: { _id: "$project", at: { $max: "$createdAt" } } }]),
+        Task.aggregate([{ $match: { project: { $in: ids }, status: "pending", dueDate: { $ne: null, $lt: now } } }, { $group: { _id: "$project", count: { $sum: 1 }, mine: { $sum: { $cond: [{ $eq: ["$assignee", req.user._id] }, 1, 0] } } } }])
     ]);
+    const recentMap = new Map(recent.map((r) => [String(r._id), r.at]));
+    const lateMap = new Map(late.map((r) => [String(r._id), r]));
     const allMap = new Map(all.map((s) => [String(s._id), s]));
     const mineMap = new Map(mine.map((s) => [String(s._id), s]));
 
@@ -38,6 +40,8 @@ async function withDetails(req, projects) {
             ...project.toObject(),
             taskCount: s?.total || 0,
             completedCount: s?.completed || 0,
+            overdueCount: (canManage ? lateMap.get(String(project._id))?.count : lateMap.get(String(project._id))?.mine) || 0,
+            lastActivityAt: recentMap.get(String(project._id)) || project.updatedAt,
             isLead: same(project.owner, req.user._id),
             isMember: project.hasAccess(req.user._id),
             canManage
@@ -57,7 +61,9 @@ export async function listProjects(req, res) {
 // POST /api/projects  (projects.create) — the creator becomes the project lead.
 export async function createProject(req, res) {
     const { name, description, dueDate, repoUrl } = req.body;
+    await assertWithinLimit(req.org, "projects");
     const project = await Project.create({ name, description, repoUrl, dueDate: dueDate || null, org: req.org._id, owner: req.user._id });
+    joinProjectRoom(req.user._id, project._id);
     await logActivity(project, req.user._id, `${req.user.fullName} created ${project.name}.`);
     res.status(201).json({ project });
 }
@@ -85,19 +91,7 @@ export async function updateProject(req, res) {
 // DELETE /api/projects/:id  (lead or projects.manage_all) — removes everything in the project.
 export async function deleteProject(req, res) {
     const project = await getProjectFor(req, req.params.id, { manage: true });
-    const taskIds = (await Task.find({ project: project._id }).select("_id")).map((t) => t._id);
-    const files = await File.find({ project: project._id });
-
-    await Promise.all(files.map((f) => fs.rm(path.join(UPLOAD_ROOT, "files", f.storedName), { force: true })));
-    await Promise.all([
-        Comment.deleteMany({ task: { $in: taskIds } }),
-        Task.deleteMany({ project: project._id }),
-        File.deleteMany({ project: project._id }),
-        Message.deleteMany({ project: project._id }),
-        CodeFile.deleteMany({ project: project._id }),
-        Activity.deleteMany({ project: project._id })
-    ]);
-    await project.deleteOne();
+    await deleteProjects([project._id]);
     res.json({ message: "Project deleted." });
 }
 
@@ -113,7 +107,8 @@ export async function addMembers(req, res) {
 
     project.members.push(...toAdd.map((u) => u._id));
     await project.save();
-    await Promise.all(toAdd.map((u) => notify(u._id, `${req.user.fullName} added you to ${project.name}.`, `/projects/${project._id}`, "people")));
+    toAdd.forEach((u) => joinProjectRoom(u._id, project._id));
+    await Promise.all(toAdd.map((u) => notify(u._id, `${req.user.fullName} added you to ${project.name}.`, `/projects/${project._id}`, "people", project.org)));
     await logActivity(project, req.user._id, `${req.user.fullName} added ${toAdd.map((u) => u.fullName).join(", ")}.`);
     res.json({ added: toAdd.length });
 }
@@ -124,6 +119,7 @@ export async function removeMember(req, res) {
     if (same(project.owner, req.params.userId)) throw new ApiError(400, "The project lead can't be removed.");
     project.members = project.members.filter((m) => String(m) !== req.params.userId);
     await project.save();
+    leaveProjectRoom(req.params.userId, project._id);
     await logActivity(project, req.user._id, `${req.user.fullName} removed a member.`);
     res.json({ message: "Removed." });
 }

@@ -2,7 +2,7 @@
 
 CollabOS is a SaaS-style collaboration platform where teams in companies, colleges and communities manage workspaces, projects, tasks, communication, files and analytics in one place. It uses secure authentication, organization-level role-based access control (RBAC) and a production-style backend.
 
-**Stack (MERN):** MongoDB · Express.js · React · Node.js, plus Multer for uploads and JWT + bcrypt for auth.
+**Stack (MERN):** MongoDB · Express.js · React · Node.js, plus Multer (uploads), JWT + bcrypt (auth), Socket.io (real time), WebRTC (meetings), Nodemailer (email), Razorpay (payments), Google OAuth + Calendar API, and Azure OpenAI (AI assistant).
 
 ## Folder structure
 
@@ -12,11 +12,14 @@ CollabOS-main/
 │                         (also: Stop, Load Demo Data, Reset Database, Change Database)
 ├── backend/              Node.js + Express REST API (port 5000)
 │   ├── src/
-│   │   ├── config/       env loading, MongoDB connection, permissions.js (the permission catalog)
+│   │   ├── config/       env loading, MongoDB connection, permissions.js (permission catalog), plans.js (Starter/Pro/Scale)
 │   │   ├── models/       Mongoose schemas: User, Organization, Role, Membership, Invitation,
-│   │   │                 Project, Task, Comment, File, CodeFile, Message, Notification, Activity
-│   │   ├── middleware/   auth.js (JWT + requirePermission), upload.js (Multer), error.js
-│   │   ├── services/     orgService.js (new organization + default roles), reminders.js (due-date alerts)
+│   │   │                 Project, Task, Comment, File, CodeFile, Message, Notification, Activity,
+│   │   │                 Payment, Meeting, AiConversation
+│   │   ├── middleware/   auth.js (JWT + requirePermission), upload.js (Multer), security.js
+│   │   │                 (rate limits, injection guard), error.js
+│   │   ├── services/     orgService.js, reminders.js, mailer.js (Nodemailer), plans.js (limits),
+│   │   │                 razorpay.js, realtime.js (Socket.io + meeting signalling), google.js, ai.js
 │   │   ├── controllers/  request handlers
 │   │   ├── routes/       URL → controller mapping
 │   │   ├── utils/        access.js (project/task access), rbac.js (hierarchy rules), events
@@ -78,13 +81,17 @@ All demo accounts use the password `demo12345`. Organization: **Acme Corp**.
 | meera@collabos.dev | Developer (3, custom role) | Works on tasks, uploads files; no admin buttons |
 | kabir@collabos.dev | no organization | Sees the welcome screen with a pending **Intern** invitation |
 
+Acme Corp is on the **Pro** plan (yearly). Demo accounts are already verified, and their email reminders are off because the addresses aren't real.
+
+A second organization, **Hackathon Squad**, shows that one account can belong to several: Meera is its Owner, Aarav an Admin and Priya only a Member. Log in as Priya and use the switcher at the top of the sidebar to see her rights change.
+
 ## Highlights
 
 - **My Calendar** (`/calendar`): a month view of your task due dates and project deadlines, the agenda for the selected day, overdue and upcoming lists, and an **.ics export** (each event has a reminder the day before) for Google Calendar or Outlook.
 - **Due-date alerts:** a background job (`backend/src/services/reminders.js`, every 15 minutes) notifies people when a task is due today or tomorrow and when it becomes overdue; the assigner is told about overdue work too. Each alert is sent once per task. In the app, alerts appear as toasts and, if enabled, as **desktop notifications**.
-- **Code** (`/code`): a VS Code-style editor built on **Monaco** (the editor inside VS Code), with an explorer tree, tabs, syntax highlighting for 25+ languages, **Ctrl + S** to save, and a status bar. Code files are stored per project in MongoDB (`models/CodeFile.js`), so the whole team edits the same copy. Teammates' saves appear automatically within 15 seconds. If two people edit the same file, the second save gets a **conflict prompt** instead of silently overwriting the first. Limits: 500 KB per file, 10 MB per project. **Open in VS Code** opens vscode.dev, or the project's GitHub repository in VS Code online, in a new tab (Microsoft doesn't allow vscode.dev to be embedded in other sites).
+- **Code** (`/code`): a VS Code-style editor built on **Monaco** (the editor inside VS Code), with an explorer tree, tabs, syntax highlighting for 25+ languages, **Ctrl + S** to save and **Ctrl + Enter** to run. Code files are stored per project in MongoDB (`models/CodeFile.js`). Limits: 500 KB per file, 10 MB per project. See "Code runner and live editing" below.
 - **Command palette:** press **Ctrl + K** anywhere to jump to a page or project, or to add a task.
-- **Design system:** `client/src/components/ui.jsx` holds the reusable parts (custom date picker, select, modal, popover, tabs, toggle, chips, skeletons), and `context/ToastContext.jsx` the toast notifications. Fonts are Geist and Geist Mono; icons are Material Symbols Rounded.
+- **Design system ("Midnight, Steel & Teal"):** `client/src/components/ui.jsx` holds the reusable parts (stat tiles, badges, progress bars and rings, tooltips, drawer, modal, popover, select, date picker, tabs, toggle, skeletons, empty states), and `context/ToastContext.jsx` the toast notifications. The visual rules and colour tokens live at the top of `client/src/index.css`: layered midnight surfaces, steel borders and secondary text, teal for actions, focus and active states, green for progress and success, amber and red only for warnings and problems. Project covers and marks are generated from the project id (`components/ProjectCard.jsx`); task details open in a side drawer (`components/TaskDrawer.jsx`); charts on the Analytics page are plain SVG/CSS with no chart library. The interface font is Inter; Geist Mono is used only for code; icons are Material Symbols Outlined.
 
 ## Role-based access control (RBAC)
 
@@ -95,6 +102,7 @@ All demo accounts use the password `demo12345`. Organization: **Acme Corp**.
 3. When an organization is created it gets 5 default roles: Owner (locked), Admin, Manager, Member and Viewer. The Owner can edit them or **create custom roles**, ticking permissions from a fixed catalog.
 4. People with `members.invite` **invite by email with a role**. The invited person sees it the next time they log in or sign up with that email. Invitations expire after 7 days.
 5. Every API request loads the user's membership and role **from the database**, so permission changes apply on the next request, without logging in again.
+6. **Multiple organizations:** one account can create or join any number of organizations, with a different role in each. The sidebar's **organization switcher** changes the active one. The browser sends its id with every request in the `X-Org-Id` header, and the server only accepts organizations the user really belongs to. The last-used organization opens at the next login.
 
 ### Data model
 
@@ -134,6 +142,53 @@ Example route:
 router.post("/", requirePermission("projects.create"), createProject);
 ```
 
+## Evaluation 3 features
+
+| Feature | How it works | Where |
+|---|---|---|
+| **Multiple organizations** | One account can belong to many organizations with a different role in each. The sidebar switcher changes the active one; the browser sends it as `X-Org-Id`. | `middleware/auth.js → loadAccess`, `components/AppLayout.jsx → OrgSwitcher` |
+| **Real email** | Nodemailer through Gmail (App Password): verification codes, password resets, invitations, due-date reminders, payment receipts, meeting invites. | `services/mailer.js` |
+| **Email verification** | Sign-up emails a 6-digit code (stored as an HMAC, 10-minute expiry, 5 tries, 1-minute resend cooldown). The app stays locked until it's entered. Changing your email asks again. **Forgot password** uses the same codes. | `utils/oneTimeCode.js`, `pages/VerifyEmail.jsx`, `pages/ForgotPassword.jsx` |
+| **Plans and payments** | Starter (free), Pro and Scale per organization, limits in `config/plans.js`, enforced on the server (HTTP 402 `PLAN_LIMIT` opens an upgrade dialog). Razorpay test-mode checkout with signature verification, webhook, coupons (`STUDENT50`), invoices, receipts, renewal reminders. Demo checkout when no keys are set. | `services/plans.js`, `controllers/billingController.js`, `pages/Billing.jsx` |
+| **Security hardening** | helmet headers, rate limits (API, login per IP+email, auth emails), account lockout after 5 wrong passwords, password policy, NoSQL-injection guard (body sanitizer + simple query parser), 15-minute access tokens + httpOnly refresh cookie, "sign out everywhere", file content checks (magic numbers), encrypted Google tokens. | `middleware/security.js`, `middleware/auth.js`, `utils/fileSignature.js`, `utils/secretBox.js` |
+| **Real-time (Socket.io)** | Instant chat, typing indicators, online dots, unread counts and "Seen" receipts; live notifications; pages refresh themselves when a project changes; permissions update the moment a role changes. | `services/realtime.js`, `context/RealtimeContext.jsx`, `pages/Messages.jsx` |
+| **Kanban board** | To do / In progress / In review / Done with drag and drop (`@dnd-kit`). Moves are saved with a position number and appear live for everyone. Done = completed, so calendar, reminders and analytics still work. | `components/KanbanBoard.jsx`, `PATCH /api/tasks/:id/stage` |
+| **Meetings (WebRTC)** | Video calls inside CollabOS: camera, microphone, screen sharing, in-call chat. Browsers connect directly to each other; Socket.io only carries the setup (offers, answers, ICE candidates). Schedule or start instantly ("ringing" invitees); plan limits on length and size. | `pages/MeetingRoom.jsx`, `pages/Meetings.jsx`, `services/realtime.js` |
+| **Google sign-in + Calendar** | "Continue with Google". Connecting Google Calendar puts task deadlines and meetings in it (with an optional Google Meet link) and shows your Google events in My Calendar. | `services/google.js`, `controllers/googleController.js` |
+| **AI assistant** | Floating assistant (**Ctrl + J**) that knows your projects, tasks and meetings. Answers stream word by word (Server-Sent Events) from Azure OpenAI (Microsoft Foundry); chats are saved; daily limit per plan. | `services/ai.js`, `controllers/aiController.js`, `components/AssistantPanel.jsx` |
+
+### Code runner and live editing
+
+- **Run button** (`utils/runners.js`, `services/codeRunner.js`): programs read their input from the **Input** tab and print to the **Output** tab, with exit code and run time.
+  - **JavaScript and Python run in the browser**, in a Web Worker. Python is Pyodide (real CPython compiled to WebAssembly, including numpy). Nothing reaches the server, so it is free and can't harm the host.
+  - **C, C++ and Java run on the server inside Docker**: a fresh container per run with no network, 256 MB of memory, one CPU, a process limit, a read-only file system and a 5-second time limit. The source and input travel through the container's stdin; nothing from the host is mounted. This needs **Docker Desktop** running on the host; without it those languages show "Sandbox offline" and everything else still works. The compiler images download on first use.
+- **Run history** (`models/CodeRun.js`): every run is saved with who ran it, its input and output (kept 30 days), and counted against the plan's daily limit.
+- **Templates**: New file offers starting points (Hello world in 5 languages, reading input, binary search, NumPy...).
+- **Live collaborative editing** (`utils/collab.js`, `services/realtime.js`): everyone who opens a file edits the same text at once, with coloured cursors and name tags. The text is a **Yjs CRDT** (a data structure that merges simultaneous edits the same way for everyone); edits travel over Socket.io. Saving still writes to MongoDB.
+- **AI in the editor**: "Explain" and "Ask AI to fix this" send the code and the error to the assistant.
+
+### The AI agent
+
+The assistant doesn't only answer: it uses **tools** (function calling) to act in the workspace (`services/aiTools.js`, 28 tools). Examples: "create a high priority task for Meera due Friday", "who is overloaded?", "summarize this project's chat", "schedule a design review tomorrow at 4", "write a binary search in C++ and save it to the code workspace".
+
+- Each tool calls the **same controller functions as the website, as the logged-in user**, so permissions, hierarchy rules, plan limits, notifications and live updates all apply. The assistant can never do more than the user could.
+- **Risky actions wait for a Confirm button**: deleting tasks or code, sending chat messages, inviting people, cancelling meetings, overwriting code. The exact action is shown first.
+- It cannot delete projects, remove or re-role people, or touch billing at all.
+- Text it reads (chat messages, task titles, files) is treated as data, not instructions, to resist prompt injection.
+- The agent loop (`services/ai.js → runAgent`): the model answers or asks for tools → tools run → results go back → repeat (up to 8 rounds), streamed to the browser with a chip per action.
+- Shortcuts: **Daily brief** (dashboard), **Ask AI** (project page), **Summarize** (chat), **Explain / fix** (code editor).
+
+### Keys to add in `backend/.env`
+
+Everything above works without extra keys except where noted. Each feature shows a clear "not set up yet" message until its keys are added; see `backend/.env.example`.
+
+| Setting | Needed for | Without it |
+|---|---|---|
+| `EMAIL_USER`, `EMAIL_PASS` | Sending real email | Emails are printed in the server window |
+| `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET` | Real Razorpay (test-mode) checkout | Demo checkout screen |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Google sign-in and Google Calendar | Google buttons explain it isn't set up |
+| `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_DEPLOYMENT` | AI assistant | Assistant explains it isn't set up (or set `AI_PROVIDER=mock` for demo answers) |
+
 ## Evaluation 2 checklist
 
 | Requirement | Where it is |
@@ -149,7 +204,7 @@ router.post("/", requirePermission("projects.create"), createProject);
 
 ## API overview
 
-All routes except register/login need the header `Authorization: Bearer <token>`. "lead" means the project's creator.
+All routes except register/login need the header `Authorization: Bearer <token>`. Requests inside an organization may also send `X-Org-Id: <organization id>`; without it the last-used organization is used. "lead" means the project's creator.
 
 | Method | Route | Requires |
 |---|---|---|
@@ -165,6 +220,7 @@ All routes except register/login need the header `Authorization: Bearer <token>`
 | POST / PUT / DELETE | `/api/org/roles`, `/api/org/roles/:id` | `roles.manage` + hierarchy + no escalation |
 | GET / POST / DELETE | `/api/org/invitations`, `/api/org/invitations/:id` | `members.invite` + hierarchy |
 | POST | `/api/org/leave`; `/api/org/transfer-ownership` | member / Owner |
+| DELETE | `/api/org` (body `{ confirmName }`; deletes everything in it) | Owner |
 | GET / POST | `/api/projects` | member / `projects.create` |
 | GET / PUT / DELETE | `/api/projects/:id` | project member or `projects.view_all` / lead or `projects.manage_all` |
 | POST / DELETE | `/api/projects/:id/members`, `/api/projects/:id/members/:userId` | lead or `projects.manage_all` |
@@ -177,14 +233,19 @@ All routes except register/login need the header `Authorization: Bearer <token>`
 | GET / POST | `/api/messages`, GET `/api/messages/conversations` | member |
 | GET / PATCH | `/api/notifications`, `/api/notifications/read-all` | logged in |
 | GET | `/api/activity`; `/api/analytics` (org stats need `org.analytics`) | member |
+| POST | `/api/auth/verify-email`, `/api/auth/resend-code`, `/api/auth/forgot-password`, `/api/auth/reset-password` | logged in / public |
+| POST | `/api/auth/refresh` (refresh cookie), `/api/auth/logout`, `/api/auth/logout-all` | cookie / logged in |
+| DELETE | `/api/org` (body `{ confirmName }`) | Owner |
+| PATCH | `/api/tasks/:id/stage` (Kanban move) | assignee or task manager |
+| GET / POST | `/api/billing/plans` (public), `/api/billing`, `/quote`, `/checkout`, `/verify`, `/payments/:id` | member / `billing.manage` |
+| POST | `/api/billing/webhook` (Razorpay, signed) | Razorpay |
+| GET / POST / DELETE | `/api/meetings`, `/api/meetings/room/:roomId`, `/api/meetings/:id` | member / invited / host |
+| GET / POST | `/api/google/login-url`, `/callback`, `/status`, `/connect-url`, `/events`, `/sync`, `/disconnect` | public / logged in |
+| GET / POST / DELETE | `/api/ai/status`, `/api/ai/chat` (streams), `/api/ai/confirm` (streams), `/api/ai/conversations[/:id]` | member |
+| GET / POST | `/api/projects/:id/code/runner`, `/code/run` (Docker sandbox), `/code/runs` (history) | project access / in the project |
 
-## Planned for Evaluation 3
+## Still to do
 
-- Real invitation **emails** with Nodemailer (invites are currently in-app)
-- **Multiple organizations per user** with an organization switcher (the data model already allows it)
-- Real-time chat and notifications with **Socket.io** (messages currently refresh every few seconds)
-- **AI assistant** for task breakdown and project summaries
-- **Kanban board** with drag-and-drop task statuses
-- Sprints and calendar views
-- Security hardening: rate limiting, helmet, refresh tokens, email verification
-- Deployment and automated tests
+- **Deployment.** Note that free hosts can't run Docker, so C, C++ and Java would need a server that can (JavaScript and Python keep working anywhere).
+- A second Atlas cluster for code files, if storage ever becomes a concern (code is stored in Atlas for now).
+- Automated tests in the repository (the feature checks were run as scripts against a temporary database)

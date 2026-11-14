@@ -1,12 +1,14 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { ToastProvider } from "./context/ToastContext";
-import ProtectedRoute, { GuestRoute, RequireNoOrg, RequireOrg } from "./components/ProtectedRoute";
+import ProtectedRoute, { GuestRoute, RequireOrg, RequireVerified } from "./components/ProtectedRoute";
 import AppLayout from "./components/AppLayout";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Welcome from "./pages/Welcome";
+import VerifyEmail from "./pages/VerifyEmail";
+import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 import Calendar from "./pages/Calendar";
 import Projects from "./pages/Projects";
@@ -17,6 +19,9 @@ import Analytics from "./pages/Analytics";
 import Messages from "./pages/Messages";
 import Organization from "./pages/Organization";
 import Settings from "./pages/Settings";
+import Billing from "./pages/Billing";
+import Meetings from "./pages/Meetings";
+import MeetingRoom from "./pages/MeetingRoom";
 import NotFound from "./pages/NotFound";
 
 export default function App() {
@@ -31,14 +36,19 @@ export default function App() {
                         <Route element={<GuestRoute />}>
                             <Route path="/login" element={<Login />} />
                             <Route path="/signup" element={<Signup />} />
+                            <Route path="/forgot-password" element={<ForgotPassword />} />
                         </Route>
 
                         {/* Requires login */}
                         <Route element={<ProtectedRoute />}>
-                            {/* Logged in but no organization yet: create one or accept an invite */}
-                            <Route element={<RequireNoOrg />}>
-                                <Route path="/welcome" element={<Welcome />} />
-                            </Route>
+                            {/* New accounts confirm their email with a 6-digit code first */}
+                            <Route path="/verify-email" element={<VerifyEmail />} />
+
+                            <Route element={<RequireVerified />}>
+                            {/* Create an organization or accept an invite. The first stop for new
+                                accounts (/welcome); members of an organization reach it as /join. */}
+                            <Route path="/welcome" element={<Welcome />} />
+                            <Route path="/join" element={<Welcome />} />
 
                             {/* Logged in and part of an organization */}
                             <Route element={<RequireOrg />}>
@@ -53,7 +63,11 @@ export default function App() {
                                     <Route path="/messages" element={<Messages />} />
                                     <Route path="/organization" element={<Organization />} />
                                     <Route path="/settings" element={<Settings />} />
+                                    <Route path="/billing" element={<Billing />} />
+                                    <Route path="/meetings" element={<Meetings />} />
+                                    <Route path="/meet/:roomId" element={<MeetingRoom />} />
                                 </Route>
+                            </Route>
                             </Route>
                         </Route>
 

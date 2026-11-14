@@ -1,72 +1,136 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------
-   CollabOS design tokens
-   Use as bg-panel, border-line, text-muted, bg-primary, etc.
+   CollabOS design system — "Midnight, Steel & Teal"
+
+   Principles
+   - Midnight surfaces with a little depth: four layered planes, never flat black.
+   - Steel (blue-grey) for borders, dividers and supporting text.
+   - Teal is the brand accent: primary actions, active states, focus, links.
+   - Green means progress and success. Amber and red are reserved for warnings and problems.
+   - Decoration is quiet: one soft glow behind the page, hairline borders, small shadows on things that float.
+
+   Use the tokens as bg-panel, border-line, text-muted, bg-primary, text-accent, text-success, etc.
    --------------------------------------------------------------- */
 @theme {
-    --font-sans: Geist, ui-sans-serif, system-ui, sans-serif;
-    --font-mono: "Geist Mono", ui-monospace, monospace;
+    --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
-    --color-page: #09090b;        /* app background */
-    --color-sidebar: #0c0c0f;     /* sidebar */
-    --color-panel: #111114;       /* cards */
-    --color-inset: #0d0d10;       /* rows and inputs inside cards */
-    --color-raised: #1b1b20;      /* hover / chips */
-    --color-line: #232329;        /* borders */
-    --color-line-soft: #1a1a1f;   /* dividers */
-    --color-muted: #9b9ba6;       /* secondary text */
-    --color-faint: #6b6b76;       /* tertiary text */
+    /* Surfaces, from back to front */
+    --color-page: #080c0e;        /* app background */
+    --color-sidebar: #0a0f11;     /* sidebar */
+    --color-inset: #0b1113;       /* inputs and wells inside panels */
+    --color-panel: #0f1618;       /* cards and panels */
+    --color-raised: #151e21;      /* menus, popovers, hovered cards */
+    --color-line: #1f2a2d;        /* borders */
+    --color-line-soft: #172124;   /* dividers inside a surface */
+    --color-line-strong: #2b393d; /* hovered borders */
 
-    --color-primary: #a8a4ff;     /* brand lavender */
-    --color-primary-hover: #bebbff;
-    --color-primary-ink: #13113a; /* text on primary */
-    --color-accent: #5ee0ff;      /* data / highlights */
-    --color-accent-strong: #22c5ee;
-    --color-accent-ink: #04161c;
+    /* Text */
+    --color-ink: #f1f5f4;         /* headings */
+    --color-muted: #98a7a8;       /* secondary */
+    --color-faint: #66777a;       /* tertiary, placeholders */
 
-    --color-success: #4ade80;
-    --color-warning: #fbbf24;
-    --color-danger: #f87171;
+    /* Steel-tinted neutrals: the "zinc" scale is re-tuned so every existing text-zinc-* fits the palette. */
+    --color-zinc-50: #f4f7f6;
+    --color-zinc-100: #e9eeed;
+    --color-zinc-200: #d6dedd;
+    --color-zinc-300: #b7c3c3;
+    --color-zinc-400: #98a7a8;
+    --color-zinc-500: #738587;
+    --color-zinc-600: #4f5f62;
+    --color-zinc-700: #36464a;
 
-    --animate-fade-in: fade-in 0.15s ease-out;
-    --animate-pop-in: pop-in 0.18s cubic-bezier(0.2, 0.9, 0.3, 1.2);
-    --animate-slide-up: slide-up 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
+    /* Brand: teal. The primary button is teal with dark ink. */
+    --color-primary: #36c6b5;
+    --color-primary-hover: #4fd6c6;
+    --color-primary-ink: #04201c;
+    --color-accent: #36c6b5;
+    --color-accent-strong: #1fa596;
+    --color-accent-ink: #04201c;
+    --color-steel: #7f97a8;       /* supporting chart series, neutral markers */
+
+    /* Status */
+    --color-success: #43c982;
+    --color-warning: #e2ac4d;
+    --color-danger: #f0736c;
+
+    --animate-fade-in: fade-in 0.16s ease-out;
+    --animate-pop-in: pop-in 0.16s cubic-bezier(0.2, 0.8, 0.2, 1);
+    --animate-slide-up: slide-up 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+    --animate-slide-in: slide-in 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+    --animate-shimmer: shimmer 1.6s linear infinite;
 
     @keyframes fade-in {
         from { opacity: 0; }
         to { opacity: 1; }
     }
     @keyframes pop-in {
-        from { opacity: 0; transform: translateY(4px) scale(0.97); }
+        from { opacity: 0; transform: translateY(4px) scale(0.985); }
         to { opacity: 1; transform: none; }
     }
     @keyframes slide-up {
-        from { opacity: 0; transform: translateY(12px); }
+        from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: none; }
+    }
+    @keyframes slide-in {
+        from { opacity: 0; transform: translateX(24px); }
+        to { opacity: 1; transform: none; }
+    }
+    @keyframes shimmer {
+        from { background-position: 200% 0; }
+        to { background-position: -200% 0; }
     }
 }
 
 @layer base {
     html {
         color-scheme: dark;
+        background: var(--color-page);
     }
 
     body {
-        @apply min-h-screen bg-page text-zinc-100 antialiased;
-        font-feature-settings: "cv11", "ss01";
+        @apply min-h-screen text-[15.5px] text-zinc-200 antialiased;
+        /* Midnight with depth: a faint teal glow top-right and a steel one bottom-left, fixed behind everything. */
+        background:
+            radial-gradient(900px 520px at 88% -8%, rgb(54 198 181 / 0.07), transparent 62%),
+            radial-gradient(700px 480px at -6% 108%, rgb(127 151 168 / 0.06), transparent 60%),
+            var(--color-page);
+        background-attachment: fixed;
+        font-feature-settings: "cv11", "ss03", "calt";
+        letter-spacing: -0.006em;
+    }
+
+    h1, h2, h3 {
+        letter-spacing: -0.018em;
     }
 
     ::selection {
-        background: color-mix(in srgb, var(--color-primary) 35%, transparent);
+        background: color-mix(in srgb, var(--color-accent) 30%, transparent);
     }
 
-    /* Icon font (Material Symbols Rounded). Our own class, so Tailwind size utilities like text-[14px] win. */
+    /* Keyboard focus is always visible, in teal. */
+    :focus-visible {
+        outline: 2px solid color-mix(in srgb, var(--color-accent) 75%, transparent);
+        outline-offset: 2px;
+    }
+    input:focus-visible, textarea:focus-visible, .field:focus-visible {
+        outline: none;
+    }
+
+    button, a, [role="button"] {
+        -webkit-tap-highlight-color: transparent;
+    }
+    button:not(:disabled), [role="button"], summary {
+        cursor: pointer;
+    }
+
+    /* Icon font (Material Symbols Outlined). Our own class, so Tailwind size utilities like text-[15px] win. */
     .icon {
-        font-family: "Material Symbols Rounded";
+        font-family: "Material Symbols Outlined";
         font-weight: normal;
         font-style: normal;
-        font-size: 1.25rem;
+        font-size: 1.125rem;
         line-height: 1;
         letter-spacing: normal;
         text-transform: none;
@@ -76,7 +140,7 @@
         direction: ltr;
         font-feature-settings: "liga";
         -webkit-font-smoothing: antialiased;
-        font-variation-settings: "FILL" 0, "wght" 400, "opsz" 24;
+        font-variation-settings: "FILL" 0, "wght" 300, "opsz" 20;
         user-select: none;
         overflow: hidden;
         width: 1em;
@@ -86,77 +150,171 @@
     /* Thin, quiet scrollbars */
     * {
         scrollbar-width: thin;
-        scrollbar-color: #2a2a31 transparent;
+        scrollbar-color: #24312f transparent;
+    }
+
+    /* People who ask for less motion get none. */
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
     }
 }
 
 /* Reusable component classes. Kept in a layer so utilities can still override them. */
 @layer components {
-    /* Cards: subtle border, faint top highlight */
+    /* A surface: hairline border, a whisper of top light. */
     .card {
-        @apply rounded-2xl border border-line bg-panel shadow-[inset_0_1px_0_rgba(255,255,255,0.03),0_1px_2px_rgba(0,0,0,0.4)];
+        @apply rounded-xl border border-line bg-panel;
+        box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.025);
+    }
+    /* A surface you can click: lifts and brightens on hover. */
+    .card-link {
+        @apply rounded-xl border border-line bg-panel transition-[transform,border-color,box-shadow,background-color] duration-200;
+        box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.025);
+    }
+    .card-link:hover {
+        @apply border-line-strong bg-[#111a1c];
+        transform: translateY(-2px);
+        box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 14px 32px -16px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(54 198 181 / 0.08);
+    }
+    .card-link:active {
+        transform: translateY(0);
+    }
+    /* Things that float above the page: menus, dialogs, toasts. */
+    .floating {
+        @apply rounded-xl border border-line-strong bg-raised;
+        box-shadow: 0 24px 60px -20px rgb(0 0 0 / 0.75), 0 2px 8px rgb(0 0 0 / 0.35), inset 0 1px 0 rgb(255 255 255 / 0.04);
     }
 
     /* Form controls */
     .field {
-        @apply h-10 w-full rounded-xl border border-line bg-inset px-3.5 text-sm text-zinc-100 outline-none transition placeholder:text-faint hover:border-[#2e2e36] focus:border-primary/60 focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-50;
+        @apply h-10 w-full rounded-lg border border-line bg-inset px-3 text-[15px] text-zinc-100 outline-none transition-[border-color,box-shadow,background-color] placeholder:text-faint hover:border-line-strong focus:border-accent/60 focus:ring-[3px] focus:ring-accent/15 disabled:cursor-not-allowed disabled:opacity-50;
     }
     textarea.field {
-        @apply h-auto min-h-24 resize-y py-2.5 leading-relaxed;
+        @apply h-auto min-h-24 resize-y py-2 leading-relaxed;
     }
 
     .label {
-        @apply mb-1.5 block text-[13px] font-medium text-zinc-300;
+        @apply mb-1.5 block text-[14px] font-medium text-zinc-300;
     }
 
-    /* Buttons */
+    /* Buttons: 36px, or 30px with .btn-sm */
     .btn, .btn-primary, .btn-secondary, .btn-ghost, .btn-danger, .btn-accent {
-        @apply inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl px-4 text-sm font-medium whitespace-nowrap transition select-none active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
+        @apply inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg px-4 text-[14.5px] font-medium whitespace-nowrap transition-[background-color,border-color,color,transform,box-shadow] duration-150 select-none active:scale-[0.98] disabled:pointer-events-none disabled:opacity-45;
     }
-    .btn-primary {
-        @apply bg-primary text-primary-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_0_0_1px_rgba(168,164,255,0.4),0_8px_24px_-8px_rgba(168,164,255,0.5)] hover:bg-primary-hover;
+    .btn-primary, .btn-accent {
+        @apply bg-primary font-semibold text-primary-ink hover:bg-primary-hover;
+        box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.25), 0 6px 16px -8px rgb(54 198 181 / 0.55);
     }
     .btn-secondary {
-        @apply border border-line bg-white/[0.03] text-zinc-200 hover:border-[#33333c] hover:bg-white/[0.06];
+        @apply border border-line bg-white/[0.03] text-zinc-200 hover:border-line-strong hover:bg-white/[0.06] hover:text-white;
     }
     .btn-ghost {
         @apply text-muted hover:bg-white/[0.05] hover:text-zinc-100;
     }
     .btn-danger {
-        @apply border border-danger/30 bg-danger/10 text-danger hover:bg-danger/15;
+        @apply border border-danger/25 bg-danger/[0.08] text-danger hover:bg-danger/15;
     }
     .btn-sm {
-        @apply h-8 rounded-lg px-3 text-[13px];
+        @apply h-8 rounded-md px-3 text-[14px];
     }
     .btn-icon {
-        @apply inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted transition hover:bg-white/[0.06] hover:text-zinc-100;
+        @apply inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted transition-colors hover:bg-white/[0.06] hover:text-zinc-100;
     }
 
-    /* Small rounded label */
+    /* Small label. Quiet by default; tone classes colour it. */
     .chip {
-        @apply inline-flex items-center gap-1 rounded-md border border-line bg-white/[0.03] px-2 py-0.5 text-xs font-medium text-zinc-300;
+        @apply inline-flex items-center gap-1 rounded-md border border-transparent bg-white/[0.05] px-1.5 py-px text-[13.5px] font-medium text-zinc-300;
     }
+    /* Status badges: a tinted pill with a matching hairline. */
+    .badge {
+        @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-white/[0.03] px-2 py-0.5 text-[13px] font-medium whitespace-nowrap text-zinc-300;
+    }
+    .badge-teal { @apply border-accent/25 bg-accent/10 text-accent; }
+    .badge-green { @apply border-success/25 bg-success/10 text-success; }
+    .badge-amber { @apply border-warning/25 bg-warning/10 text-warning; }
+    .badge-red { @apply border-danger/25 bg-danger/10 text-danger; }
+    .badge-steel { @apply border-steel/25 bg-steel/10 text-[#a9bccb]; }
 
     .kbd {
-        @apply inline-flex h-5 min-w-5 items-center justify-center rounded border border-line bg-white/[0.04] px-1 font-mono text-[10px] text-muted;
+        @apply inline-flex h-[18px] min-w-[18px] items-center justify-center rounded border border-line bg-white/[0.04] px-1 font-sans text-[12px] font-medium text-faint;
     }
 
-    /* Background patterns */
-    .grid-bg {
-        background-image:
-            linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-        background-size: 32px 32px;
+    /* Small section label above a group ("Channels", "Upcoming"). */
+    .eyebrow {
+        @apply text-[12.5px] font-semibold tracking-[0.06em] text-faint uppercase;
     }
-    .dot-bg {
-        background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
-        background-size: 22px 22px;
+
+    /* Icon tile used in stat tiles and list rows. Tone classes set the colour. */
+    .tile {
+        @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-line bg-white/[0.03] text-muted;
+    }
+    .tile-teal { @apply border-accent/20 bg-accent/10 text-accent; }
+    .tile-green { @apply border-success/20 bg-success/10 text-success; }
+    .tile-amber { @apply border-warning/20 bg-warning/10 text-warning; }
+    .tile-red { @apply border-danger/20 bg-danger/10 text-danger; }
+    .tile-steel { @apply border-steel/20 bg-steel/10 text-[#a9bccb]; }
+
+    /* A row of stat tiles. */
+    .stats {
+        @apply grid grid-cols-2 gap-3 lg:grid-cols-4;
+    }
+
+    /* Lists are rows divided by hairlines. .rows inside a panel; .rows-card when the list is its own surface. */
+    .rows {
+        @apply divide-y divide-line-soft;
+    }
+    .rows-card {
+        @apply divide-y divide-line-soft overflow-hidden rounded-xl border border-line bg-panel;
+    }
+    .rows-card > * {
+        @apply px-4;
+    }
+
+    /* Loading placeholder with a slow sheen. */
+    .skeleton {
+        @apply animate-shimmer rounded-lg;
+        background: linear-gradient(90deg, rgb(255 255 255 / 0.04) 25%, rgb(255 255 255 / 0.08) 37%, rgb(255 255 255 / 0.04) 63%);
+        background-size: 200% 100%;
+    }
+
+    /* Menu item inside a popover. */
+    .menu-item {
+        @apply flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-[14.5px] text-zinc-300 transition-colors hover:bg-white/[0.06] hover:text-white;
+    }
+
+    /* Kept for old markup. */
+    .grid-bg, .dot-bg {
+        background-image: none;
     }
 }
 
-/* Old class names still used by some components */
-@layer components {
-    .btn-accent {
-        @apply h-8 rounded-lg px-3 text-[13px] bg-accent text-accent-ink hover:bg-[#8de9ff];
-    }
+/* Live editing: other people's carets and name tags in the code editor (see utils/collab.js). */
+.collab-caret {
+    position: relative;
+    margin-left: -1px;
+}
+.collab-caret::after {
+    position: absolute;
+    top: -1.5em;
+    left: -2px;
+    z-index: 10;
+    padding: 0 5px;
+    border-radius: 4px 4px 4px 0;
+    color: #06100f;
+    font: 600 10px/1.5 Inter, system-ui, sans-serif;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+/* A clickable row inside a padded panel: the hover background runs edge to edge. */
+.rows > .row-bleed {
+    margin-left: -1rem;
+    margin-right: -1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
 }

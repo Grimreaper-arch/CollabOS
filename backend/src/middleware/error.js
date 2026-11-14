@@ -27,5 +27,5 @@ export function errorHandler(err, _req, res, _next) {
     }
 
     if (status === 500) console.error(err);
-    res.status(status).json({ message });
+    res.status(status).json(typeof err.code === "string" ? { message, code: err.code } : { message });
 }

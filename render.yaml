@@ -1,0 +1,44 @@
+# Render blueprint: one web service that builds the website and runs the API, which also serves it.
+# In Render: New > Blueprint > pick this repository and branch. Then fill in the secret values it asks for.
+services:
+  - type: web
+    name: collabos
+    runtime: node
+    plan: free
+    buildCommand: cd client && npm ci --include=dev && npm run build && cd ../backend && npm ci
+    startCommand: cd backend && node src/server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "24"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      # The site's own address (CLIENT_URL) is taken from Render automatically.
+      - key: MONGO_URI
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: AI_PROVIDER
+        value: azure
+      - key: AZURE_OPENAI_ENDPOINT
+        sync: false
+      - key: AZURE_OPENAI_API_KEY
+        sync: false
+      - key: AZURE_OPENAI_DEPLOYMENT
+        value: gpt-4.1-mini
+      - key: AZURE_OPENAI_API_VERSION
+        value: "2024-10-21"

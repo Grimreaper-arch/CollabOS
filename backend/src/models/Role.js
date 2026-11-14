@@ -17,7 +17,9 @@ const roleSchema = new mongoose.Schema(
             }
         },
         // The Owner role is created automatically and can never be edited or deleted.
-        isSystem: { type: Boolean, default: false }
+        isSystem: { type: Boolean, default: false },
+        // Roles the organization made itself (not one of the 5 defaults). Counted against the plan.
+        isCustom: { type: Boolean, default: false }
     },
     { timestamps: true }
 );
